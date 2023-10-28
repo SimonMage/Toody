@@ -6,6 +6,7 @@ import 'package:todolist/utilities/todo_tile.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todolist/utilities/toDoDatabase.dart';
+import 'package:shake/shake.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -125,6 +126,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    ShakeDetector detector = ShakeDetector.autoStart(
+        onPhoneShake: () {
+              for (var i = 0; i < db.toDoList.length; i++) {
+                if (db.toDoList[i][1]==true) {
+                  db.toDoList.remove(db.toDoList[i]);
+                  i=i-1;
+                }
+              }
+              db.updateData();
+        }
+    );
     return GestureDetector(
       onLongPress: onLongPressDetected,
       child: Scaffold(
