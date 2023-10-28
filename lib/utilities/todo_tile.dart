@@ -1,53 +1,53 @@
 import 'package:flutter/material.dart';
+
+// ignore: must_be_immutable
 class ToDoTile extends StatelessWidget {
   final String taskName;
   final bool taskCompleted;
   Function(bool?)? onChanged;
-  final DateTime taskDate;
-
+  final DateTime? taskDate;
 
   ToDoTile({
-    super.key, 
+    Key? key,
     required this.taskName,
     required this.taskCompleted,
     required this.onChanged,
-    required this.taskDate,
-    });
+    this.taskDate,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 10.0, right: 25, top: 25),
       child: Container(
-        padding: EdgeInsets.all(20),
-        child: Row (
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.yellow,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
           children: [
             Column(
               children: [
-                Container (
-                  child: Row(
-                    children: [
-                      //Checkbox
-                      Checkbox(value: taskCompleted, onChanged: onChanged),
-                      //Nome lista
-                      Text(taskName),
-                    ]
-                  )
+                Row(
+                  children: [
+                    // Checkbox
+                    Checkbox(value: taskCompleted, onChanged: onChanged),
+                    // Nome lista
+                    Text(taskName),
+                  ],
                 ),
-                Container (
-                  child: Row(
+                if (taskDate != null)
+                  Row(
                     children: [
-                      Text(taskDate.day.toString() + "/" + taskDate.month.toString() + "/" + taskDate.year.toString() + "  " + taskDate.hour.toString() + ":" + taskDate.minute.toString() + ":" + taskDate.second.toString()),
-                    ]
-                  )
-                ),
+                      //Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}"),
+                      Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}  ${taskDate!.hour}:${taskDate!.minute}"),
+                    ],
+                  ),
               ],
             ),
-          ]
+          ],
         ),
-        decoration: BoxDecoration(
-          color: Colors.yellow,
-          borderRadius: BorderRadius.circular(12),),
       ),
     );
   }
