@@ -4,6 +4,10 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart'; // Assicurati di aver importato la libreria Intl
 import 'package:todolist/utilities/todo_tile.dart';
 
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:todolist/utilities/todo_database.dart';
+import 'package:shake/shake.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -12,13 +16,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<List<dynamic>> toDoList = [];
+  final _myBox=Hive.box("activities");
+  ToDoDatabase db=ToDoDatabase();
+
+  @override
+  void initState() {
+    //Prima apertura app o mancanza del database
+    if (_myBox.get("activities") == null) {
+      db.createData();
+    } else {
+      //Trovato database
+      db.loadData();
+    }
+
+  super.initState();
+  }
+  
   DateTime selectedDate = DateTime.now();
   bool isDateSelected = false;
 
   void checkBoxChanged(bool? value, int index) {
     setState(() {
-      toDoList[index][1] = value ?? false;
+      db.toDoList[index][1] = value ?? false;
+      db.updateData();
     });
   }
 
@@ -88,7 +108,8 @@ class _HomePageState extends State<HomePage> {
 
                 if (taskName.isNotEmpty) {
                   setState(() {
-                    toDoList.add([taskName, false, selectedDate]);
+                    db.toDoList.add([taskName, false, selectedDate]);
+                    db.updateData();
                   });
 
                   Navigator.pop(context);
@@ -105,6 +126,19 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
+    ShakeDetector detector = ShakeDetector.autoStart(
+        onPhoneShake: () {
+              for (var i = 0; i < db.toDoList.length; i++) {
+                if (db.toDoList[i][1]==true) {
+                  db.toDoList.remove(db.toDoList[i]);
+                  i=i-1;
+                }
+              }
+              db.updateData();
+        }
+    );
+    
     return GestureDetector(
       onLongPress: onLongPressDetected,
       child: Scaffold(
@@ -113,12 +147,12 @@ class _HomePageState extends State<HomePage> {
         ),
         backgroundColor: Colors.yellow[200],
         body: ListView.builder(
-          itemCount: toDoList.length,
+          itemCount: db.toDoList.length,
           itemBuilder: (context, index) {
             return ToDoTile(
-              taskName: toDoList[index][0],
-              taskCompleted: toDoList[index][1],
-              taskDate: toDoList[index][2],
+              taskName: db.toDoList[index][0],
+              taskCompleted: db.toDoList[index][1],
+              taskDate: db.toDoList[index][2],
               onChanged: (value) => checkBoxChanged(value, index),
             );
           },
