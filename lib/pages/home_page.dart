@@ -128,22 +128,27 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     ShakeDetector detector = ShakeDetector.autoStart(
-        onPhoneShake: () {
-              for (var i = 0; i < db.toDoList.length; i++) {
-                if (db.toDoList[i][1]==true) {
-                  db.toDoList.remove(db.toDoList[i]);
-                  i=i-1;
-                }
-              }
-              db.updateData();
+      onPhoneShake: () {
+        bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
+        if (hasCompletedTask) {
+          // ignore: avoid_print
+          print("Hai scosso l'emulatore con almeno un'attività flaggata.");
+          for (var i = 0; i < db.toDoList.length; i++) {
+            if (db.toDoList[i][1] == true) {
+              db.toDoList.remove(db.toDoList[i]);
+              i = i - 1;
+            }
+          }
+          db.updateData();
         }
+      },
     );
     
     return GestureDetector(
       onLongPress: onLongPressDetected,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('     TooDy ● Il tuo promemoria tascabile'),
+          title: const Text('TooDy ● Il tuo promemoria tascabile'),
         ),
       backgroundColor: Colors.yellow[200],
       body: db.toDoList.isEmpty
