@@ -5,7 +5,7 @@ import 'package:intl/intl.dart'; // Assicurati di aver importato la libreria Int
 import 'package:todolist/utilities/todo_tile.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:todolist/utilities/toDoDatabase.dart';
+import 'package:todolist/utilities/todo_database.dart';
 import 'package:shake/shake.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,7 +17,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _myBox=Hive.box("activities");
-  toDoDatabase db=toDoDatabase();
+  
+  ToDoDatabase db=ToDoDatabase();
 
   @override
   void initState() {
@@ -126,6 +127,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     ShakeDetector detector = ShakeDetector.autoStart(
         onPhoneShake: () {
               for (var i = 0; i < db.toDoList.length; i++) {
@@ -137,6 +139,7 @@ class _HomePageState extends State<HomePage> {
               db.updateData();
         }
     );
+    
     return GestureDetector(
       onLongPress: onLongPressDetected,
       child: Scaffold(
