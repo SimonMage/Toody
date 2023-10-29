@@ -17,6 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _myBox=Hive.box("activities");
+  
   ToDoDatabase db=ToDoDatabase();
 
   @override
