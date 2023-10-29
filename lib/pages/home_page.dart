@@ -17,7 +17,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _myBox=Hive.box("activities");
-  
   ToDoDatabase db=ToDoDatabase();
 
   @override
@@ -146,15 +145,32 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: const Text('     TooDy ● Il tuo promemoria tascabile'),
         ),
-        backgroundColor: Colors.yellow[200],
-        body: ListView.builder(
-          itemCount: db.toDoList.length,
-          itemBuilder: (context, index) {
-            return ToDoTile(
-              taskName: db.toDoList[index][0],
-              taskCompleted: db.toDoList[index][1],
-              taskDate: db.toDoList[index][2],
-              onChanged: (value) => checkBoxChanged(value, index),
+      backgroundColor: Colors.yellow[200],
+      body: db.toDoList.isEmpty
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Nessuna attività creata',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                  SizedBox(height: 10),  // Aggiungi spazio tra i testi
+                  Text(
+                    'Tocca e tieni premuto per aggiungere una nuova attività.',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              itemCount: db.toDoList.length,
+              itemBuilder: (context, index) {
+                return ToDoTile(
+                  taskName: db.toDoList[index][0],
+                  taskCompleted: db.toDoList[index][1],
+                  taskDate: db.toDoList[index][2],
+                  onChanged: (value) => checkBoxChanged(value, index),
             );
           },
         ),
