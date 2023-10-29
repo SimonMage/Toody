@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 // ignore: unused_import
 import 'package:intl/intl.dart'; // Assicurati di aver importato la libreria Intl
-import 'package:todolist/utilities/todo_tile.dart';
+import 'package:toody/utilities/todo_tile.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:todolist/utilities/todo_database.dart';
+import 'package:toody/utilities/todo_database.dart';
 import 'package:shake/shake.dart';
 
 class HomePage extends StatefulWidget {
@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
       onLongPress: onLongPressDetected,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Toody l\'App che ti farà ricordare te stesso'),
+          title: const Text('     TooDy ● Il tuo promemoria tascabile'),
         ),
         backgroundColor: Colors.yellow[200],
         body: ListView.builder(

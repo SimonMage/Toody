@@ -41,7 +41,7 @@ class ToDoTile extends StatelessWidget {
                   Row(
                     children: [
                       //Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}"),
-                      Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}  ${taskDate!.hour}:${taskDate!.minute}"),
+                      Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year} ● ${taskDate!.hour}:${taskDate!.minute}"),
                     ],
                   ),
               ],
