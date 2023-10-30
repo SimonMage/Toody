@@ -16,13 +16,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _myBox=Hive.box("activities");
+  final _myBox=Hive.box('mybox');
   ToDoDatabase db=ToDoDatabase();
 
   @override
   void initState() {
     //Prima apertura app o mancanza del database
-    if (_myBox.get("activities") == null) {
+    if (_myBox.get("TODO") == null) {
       db.createData();
     } else {
       //Trovato database
