@@ -22,9 +22,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     //Prima apertura app o mancanza del database
-    if (_myBox.get("TODO") == null) {
-      db.createData();
-    } else {
+    if (_myBox.get("TODO") != null) {
       //Trovato database
       db.loadData();
     }

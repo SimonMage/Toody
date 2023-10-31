@@ -8,9 +8,9 @@ class ToDoDatabase {
 
   //Metodo eseguito nel caso non esista un precedente database
   //salvato localmente(primo utilizzo app oppure database mancante)
-  void createData() {
-    toDoList=[];
-  }
+  //void createData() {
+  //  toDoList=[];
+  //}
 
   //Metodo che carica i dati dal database
   //Database ---> App
