@@ -78,6 +78,7 @@ class _HomePageState extends State<HomePage> {
                   TextButton(
                     onPressed: () async {
                       final date = await DatePicker.showDateTimePicker(
+                        locale : LocaleType.it,
                         context,
                         showTitleActions: true,
                         onConfirm: (date) {
