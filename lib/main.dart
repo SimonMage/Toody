@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
          GlobalMaterialLocalizations.delegate
        ],
        supportedLocales: [
-         const Locale('en'),
          const Locale('it')
        ],
       theme: ThemeData(primarySwatch: Colors.yellow),

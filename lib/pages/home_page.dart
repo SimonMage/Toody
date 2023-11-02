@@ -70,6 +70,8 @@ class _HomePageState extends State<HomePage> {
             children: [
               TextField(
                 controller: nameController,
+                //Limite lunghezza nome dell'attività
+                maxLength: 34,
                 decoration: const InputDecoration(labelText: 'Nome'),
               ),
               Row(
