@@ -18,7 +18,7 @@ class ToDoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 25, top: 25),
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -28,22 +28,33 @@ class ToDoTile extends StatelessWidget {
         child: Row(
           children: [
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
                   children: [
-                    // Checkbox
-                    Checkbox(value: taskCompleted, onChanged: onChanged),
+                   // Checkbox 
+                    Transform.scale(
+                      scale: 1.5,
+                      child: Checkbox(value: taskCompleted, onChanged: onChanged),
+                     ),
                     // Nome lista
-                    Text(taskName),
-                  ],
+                    Text(
+                      taskName, 
+                      style: TextStyle(fontSize: 16.0),
+                    ),                  ],
                 ),
                 if (taskDate != null)
-                  Row(
-                    children: [
-                      //Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}"),
-                      Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year} ● ${taskDate!.hour}:${taskDate!.minute}"),
-                    ],
-                  ),
+                 Container(
+                    //Soluzione temporanea per posizionare la data a destra del tile
+                    margin: EdgeInsets.only(left:220),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year} ● ${taskDate!.hour}:${taskDate!.minute}"),
+                      ],
+                    ),
+                 ),
               ],
             ),
           ],

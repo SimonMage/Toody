@@ -16,20 +16,35 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _myBox=Hive.box("activities");
+  final _myBox=Hive.box('mybox');
   ToDoDatabase db=ToDoDatabase();
 
   @override
   void initState() {
     //Prima apertura app o mancanza del database
-    if (_myBox.get("activities") == null) {
-      db.createData();
-    } else {
+    if (_myBox.get("TODO") != null) {
       //Trovato database
       db.loadData();
     }
 
   super.initState();
+
+  ShakeDetector detector = ShakeDetector.autoStart(
+      onPhoneShake: () {
+        bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
+        if (hasCompletedTask) {
+          // ignore: avoid_print
+          print("Hai scosso l'emulatore con almeno un'attività flaggata.");
+          for (var i = 0; i < db.toDoList.length; i++) {
+            if (db.toDoList[i][1] == true) {
+              db.toDoList.remove(db.toDoList[i]);
+              i = i - 1;
+            }
+          }
+          db.updateData();
+        }
+      },
+    );
   }
   
   DateTime selectedDate = DateTime.now();
@@ -55,6 +70,8 @@ class _HomePageState extends State<HomePage> {
             children: [
               TextField(
                 controller: nameController,
+                //Limite lunghezza nome dell'attività
+                maxLength: 34,
                 decoration: const InputDecoration(labelText: 'Nome'),
               ),
               Row(
@@ -63,6 +80,7 @@ class _HomePageState extends State<HomePage> {
                   TextButton(
                     onPressed: () async {
                       final date = await DatePicker.showDateTimePicker(
+                        locale : LocaleType.it,
                         context,
                         showTitleActions: true,
                         onConfirm: (date) {
@@ -126,24 +144,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
-    ShakeDetector detector = ShakeDetector.autoStart(
-      onPhoneShake: () {
-        bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
-        if (hasCompletedTask) {
-          // ignore: avoid_print
-          print("Hai scosso l'emulatore con almeno un'attività flaggata.");
-          for (var i = 0; i < db.toDoList.length; i++) {
-            if (db.toDoList[i][1] == true) {
-              db.toDoList.remove(db.toDoList[i]);
-              i = i - 1;
-            }
-          }
-          db.updateData();
-        }
-      },
-    );
-    
+    // ignore: unused_local_variable    
     return GestureDetector(
       onLongPress: onLongPressDetected,
       child: Scaffold(
