@@ -33,19 +33,28 @@ class ToDoTile extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    // Checkbox
-                    Checkbox(value: taskCompleted, onChanged: onChanged),
+                   // Checkbox 
+                    Transform.scale(
+                      scale: 1.5,
+                      child: Checkbox(value: taskCompleted, onChanged: onChanged),
+                     ),
                     // Nome lista
-                    Text(taskName),
-                  ],
+                    Text(
+                      taskName, 
+                      style: TextStyle(fontSize: 16.0),
+                    ),                  ],
                 ),
                 if (taskDate != null)
-                  Row(
-                    children: [
-                      //Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}"),
-                      Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year} ● ${taskDate!.hour}:${taskDate!.minute}"),
-                    ],
-                  ),
+                 Container(
+                    //Soluzione temporanea per posizionare la data a destra del tile
+                    margin: EdgeInsets.only(left:220),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year} ● ${taskDate!.hour}:${taskDate!.minute}"),
+                      ],
+                    ),
+                 ),
               ],
             ),
           ],
