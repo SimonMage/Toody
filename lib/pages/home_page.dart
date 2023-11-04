@@ -59,12 +59,14 @@ class _HomePageState extends State<HomePage> {
 
   void onLongPressDetected() async {
     final TextEditingController nameController = TextEditingController();
+    final TextEditingController nameControllerSecondo = TextEditingController();
 
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Aggiungi una nuova attività'),
+          scrollable: true,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -73,6 +75,12 @@ class _HomePageState extends State<HomePage> {
                 //Limite lunghezza nome dell'attività
                 maxLength: 34,
                 decoration: const InputDecoration(labelText: 'Nome'),
+              ),
+              TextField(
+                controller: nameControllerSecondo,
+                //Limite lunghezza nome dell'attività
+                maxLength: 34,
+                decoration: const InputDecoration(labelText: 'Descrizione'),
               ),
               Row(
                 children: [
@@ -123,10 +131,10 @@ class _HomePageState extends State<HomePage> {
             TextButton(
               onPressed: () {
                 final String taskName = nameController.text;
-
+                final String descr = nameControllerSecondo.text;
                 if (taskName.isNotEmpty) {
                   setState(() {
-                    db.toDoList.add([taskName, false, selectedDate]);
+                    db.toDoList.add([taskName, false, selectedDate,descr]);
                     db.updateData();
                   });
 
@@ -177,6 +185,7 @@ class _HomePageState extends State<HomePage> {
                   taskCompleted: db.toDoList[index][1],
                   taskDate: db.toDoList[index][2],
                   onChanged: (value) => checkBoxChanged(value, index),
+                  descr: db.toDoList[index][3],
             );
           },
         ),

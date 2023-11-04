@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+
 // ignore: must_be_immutable
 class ToDoTile extends StatelessWidget {
   final String taskName;
+  final String descr;
   final bool taskCompleted;
   Function(bool?)? onChanged;
   final DateTime? taskDate;
@@ -13,6 +15,7 @@ class ToDoTile extends StatelessWidget {
     required this.taskCompleted,
     required this.onChanged,
     this.taskDate,
+    required this.descr,
   }) : super(key: key);
 
   @override
@@ -44,6 +47,16 @@ class ToDoTile extends StatelessWidget {
                       style: TextStyle(fontSize: 16.0),
                     ),                  ],
                 ),
+               Container(
+                    //Soluzione temporanea per posizionare la data a destra del tile
+                    margin: EdgeInsets.only(right:220),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(descr),
+                      ],
+                    ),
+                 ),
                 if (taskDate != null)
                  Container(
                     //Soluzione temporanea per posizionare la data a destra del tile
