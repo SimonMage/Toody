@@ -3,6 +3,7 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 // ignore: unused_import
 import 'package:intl/intl.dart'; // Assicurati di aver importato la libreria Intl
 import 'package:toody/utilities/todo_tile.dart';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:shake/shake.dart';
@@ -65,22 +66,38 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Aggiungi un'attività"),
+          title: Container(
+          color: Colors.yellow[200],
+          child: Text("Aggiungi una nuova attività", style: TextStyle(color: Colors.blue[700], fontSize: 21))
+  ),
           scrollable: true,
+          backgroundColor: Colors.yellow[200],
+         shadowColor: Colors.yellow,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
                 //Limite lunghezza nome dell'attività
-                maxLength: 21,
-                decoration: const InputDecoration(labelText: 'Nome',),
+                maxLength: 15,
+                cursorColor: Colors.blue,
+                decoration: InputDecoration(labelText: 'Nome',
+                labelStyle: TextStyle(color: Colors.blue[700]),
+                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black),),
+                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue))
+                ),
               ),
               TextField(
                 controller: nameControllerSecondo,
                 //Limite lunghezza nome dell'attività
-                maxLength: 25,
-                decoration: const InputDecoration(labelText: 'Descrizione'),
+                maxLength: 20,
+                cursorColor: Colors.blue,
+                decoration: InputDecoration(labelText: 'Descrizione',
+                labelStyle: TextStyle(color: Colors.blue[700]),
+                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black),),
+                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue))
+                ),
               ),
               Row(
                 children: [
@@ -141,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                 }
               },
-              style: TextButton.styleFrom(foregroundColor: Colors.green),
+              style: TextButton.styleFrom(foregroundColor: Colors.blue[700]),
               child: const Text('Aggiungi'),
             ),
           ],
@@ -157,7 +174,7 @@ class _HomePageState extends State<HomePage> {
       onLongPress: onLongPressDetected,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('TooDy ● Il tuo promemoria tascabile'),
+          title: Text('TooDy ● Il tuo promemoria tascabile',style: TextStyle(fontSize: 21,color: Colors.blue[700])),
         ),
       backgroundColor: Colors.yellow[200],
       body: db.toDoList.isEmpty

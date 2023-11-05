@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 // ignore: must_be_immutable
 class ToDoTile extends StatelessWidget {
   final String taskName;
@@ -22,23 +23,42 @@ class ToDoTile extends StatelessWidget {
     return Center(
   child: Container(
     width: double.infinity,
-    color: Colors.yellow, 
+    //color: Colors.yellow, 
     padding: const EdgeInsets.all(15),
+   decoration: BoxDecoration(
+    border: Border.all(color: Colors.yellow),
+    borderRadius: const BorderRadius.all(Radius.circular(15)),
+    color: Colors.yellow
+  ),
    margin: const EdgeInsets.all(9),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Transform.scale(scale: 1.5,child: Checkbox(value: taskCompleted,onChanged: onChanged,)),
-        const SizedBox(width: 13),
+        Transform.scale(scale: 1.5,
+                        child: Checkbox(value: taskCompleted,
+                                        onChanged: onChanged,
+                                        checkColor: Colors.blue[700],
+                                       activeColor: Colors.yellow,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3.0),),
+                                        side: MaterialStateBorderSide.resolveWith((states) => BorderSide(width: 2.0, color: Colors.blue[700] ?? Colors.blue)),
+                                        )
+                        ),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(taskName),
+              Text(
+                taskName,
+                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18.0,color: Colors.blue[700]),
+              ),
               const SizedBox(height: 4),
-              Text(descr)
+              Text(
+                descr,
+                style: const TextStyle(fontSize: 14.0,color: Colors.black),
+              )
             ],
           ),
         ),
@@ -46,7 +66,27 @@ class ToDoTile extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}\n${taskDate!.hour}:${taskDate!.minute}")
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_month_outlined),
+                    const SizedBox(width: 3),
+                    Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}"),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    const Icon(Icons.timer_outlined),
+                    const SizedBox(width: 3),
+                    Text("${taskDate!.hour}:${taskDate!.minute}")
+                  ],
+                )
+                
+              ],
+            )
           ],
         )
       ],
@@ -54,4 +94,5 @@ class ToDoTile extends StatelessWidget {
   ),
 )
   ;}
+
 }
