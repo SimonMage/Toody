@@ -20,11 +20,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
-      localizationsDelegates: [
+      localizationsDelegates: const [
          GlobalMaterialLocalizations.delegate
        ],
-       supportedLocales: [
-         const Locale('it')
+       supportedLocales: const [
+         Locale('it')
        ],
       theme: ThemeData(primarySwatch: Colors.yellow),
     );

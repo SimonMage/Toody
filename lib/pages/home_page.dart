@@ -3,7 +3,6 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 // ignore: unused_import
 import 'package:intl/intl.dart'; // Assicurati di aver importato la libreria Intl
 import 'package:toody/utilities/todo_tile.dart';
-
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:shake/shake.dart';
@@ -29,6 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   super.initState();
 
+  // ignore: unused_local_variable
   ShakeDetector detector = ShakeDetector.autoStart(
       onPhoneShake: () {
         bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Aggiungi una nuova attività'),
+          title: const Text("Aggiungi un'attività"),
           scrollable: true,
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -73,13 +73,13 @@ class _HomePageState extends State<HomePage> {
               TextField(
                 controller: nameController,
                 //Limite lunghezza nome dell'attività
-                maxLength: 34,
-                decoration: const InputDecoration(labelText: 'Nome'),
+                maxLength: 21,
+                decoration: const InputDecoration(labelText: 'Nome',),
               ),
               TextField(
                 controller: nameControllerSecondo,
                 //Limite lunghezza nome dell'attività
-                maxLength: 34,
+                maxLength: 25,
                 decoration: const InputDecoration(labelText: 'Descrizione'),
               ),
               Row(
@@ -169,7 +169,6 @@ class _HomePageState extends State<HomePage> {
                     'Nessuna attività creata',
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
-                  SizedBox(height: 10),  // Aggiungi spazio tra i testi
                   Text(
                     'Tocca e tieni premuto per aggiungere una nuova attività.',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
