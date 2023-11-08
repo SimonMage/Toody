@@ -18,9 +18,11 @@ class ToDoDatabase {
     toDoList=_myBox.get("TODO");
   }
 
-  //Metoto che aggiorna i dati presenti sul database
+  //Metodo che aggiorna i dati presenti sul database
   //App ---> Database
   void updateData() {
+    //Ordinamento delle attività per data
+    toDoList.sort((a,b)=> a[2].compareTo(b[2]));
     _myBox.put("TODO", toDoList);
   }
 

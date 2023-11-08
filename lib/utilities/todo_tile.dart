@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-<<<<<<< Updated upstream
-=======
 import 'package:intl/intl.dart';
 
 import 'package:toody/pages/information_page.dart';
 
->>>>>>> Stashed changes
 
 // ignore: must_be_immutable
 class ToDoTile extends StatelessWidget {
   final String taskName;
+  final String descr;
   final bool taskCompleted;
   Function(bool?)? onChanged;
   final DateTime? taskDate;
@@ -20,19 +18,11 @@ class ToDoTile extends StatelessWidget {
     required this.taskCompleted,
     required this.onChanged,
     this.taskDate,
+    required this.descr,
   }) : super(key: key);
 
-  @override
+@override
   Widget build(BuildContext context) {
-<<<<<<< Updated upstream
-    return Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 25, top: 25),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.yellow,
-          borderRadius: BorderRadius.circular(12),
-=======
     return Center(
   child: Container(
     width: double.infinity,
@@ -83,32 +73,42 @@ class ToDoTile extends StatelessWidget {
               )
             ],
           ),
->>>>>>> Stashed changes
         ),
-        child: Row(
+        const SizedBox(width: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    // Checkbox
-                    Checkbox(value: taskCompleted, onChanged: onChanged),
-                    // Nome lista
-                    Text(taskName),
+                    const Icon(Icons.calendar_month_outlined),
+                    const SizedBox(width: 3),
+                    Text(DateFormat('dd/MM/yyyy').format(taskDate!), // Usa DateFormat per formattare la data
+                      style: const TextStyle(fontSize: 14.0, color: Colors.black),
+                    ),
                   ],
                 ),
-                if (taskDate != null)
-                  Row(
-                    children: [
-                      //Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}"),
-                      Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year} ● ${taskDate!.hour}:${taskDate!.minute}"),
-                    ],
-                  ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    const Icon(Icons.timer_outlined),
+                    const SizedBox(width: 3),
+                    Text(DateFormat('HH:mm').format(taskDate!), // Usa DateFormat per formattare l'orario
+                      style: const TextStyle(fontSize: 14.0, color: Colors.black),
+                    ),
+                  ],
+                )
+                
               ],
-            ),
+            )
           ],
-        ),
-      ),
-    );
-  }
+        )
+      ],
+    ),
+  ),
+)
+  ;}
+
 }
