@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   super.initState();
 
+  // ignore: unused_local_variable
   ShakeDetector detector = ShakeDetector.autoStart(
       onPhoneShake: () {
         bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
@@ -59,18 +60,44 @@ class _HomePageState extends State<HomePage> {
 
   void onLongPressDetected() async {
     final TextEditingController nameController = TextEditingController();
+    final TextEditingController nameControllerSecondo = TextEditingController();
 
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Aggiungi una nuova attività'),
+          title: Container(
+          color: Colors.yellow[200],
+          child: Text("Aggiungi una nuova attività", style: TextStyle(color: Colors.blue[700], fontSize: 21))
+  ),
+          scrollable: true,
+          backgroundColor: Colors.yellow[200],
+         shadowColor: Colors.yellow,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Nome'),
+                //Limite lunghezza nome dell'attività
+                maxLength: 15,
+                cursorColor: Colors.blue,
+                decoration: InputDecoration(labelText: 'Nome',
+                labelStyle: TextStyle(color: Colors.blue[700]),
+                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black),),
+                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue))
+                ),
+              ),
+              TextField(
+                controller: nameControllerSecondo,
+                //Limite lunghezza nome dell'attività
+                maxLength: 20,
+                cursorColor: Colors.blue,
+                decoration: InputDecoration(labelText: 'Descrizione',
+                labelStyle: TextStyle(color: Colors.blue[700]),
+                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black),),
+                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue))
+                ),
               ),
               Row(
                 children: [
@@ -78,6 +105,7 @@ class _HomePageState extends State<HomePage> {
                   TextButton(
                     onPressed: () async {
                       final date = await DatePicker.showDateTimePicker(
+                        locale : LocaleType.it,
                         context,
                         showTitleActions: true,
                         onConfirm: (date) {
@@ -120,17 +148,17 @@ class _HomePageState extends State<HomePage> {
             TextButton(
               onPressed: () {
                 final String taskName = nameController.text;
-
+                final String descr = nameControllerSecondo.text;
                 if (taskName.isNotEmpty) {
                   setState(() {
-                    db.toDoList.add([taskName, false, selectedDate]);
+                    db.toDoList.add([taskName, false, selectedDate,descr]);
                     db.updateData();
                   });
 
                   Navigator.pop(context);
                 }
               },
-              style: TextButton.styleFrom(foregroundColor: Colors.green),
+              style: TextButton.styleFrom(foregroundColor: Colors.blue[700]),
               child: const Text('Aggiungi'),
             ),
           ],
@@ -146,7 +174,7 @@ class _HomePageState extends State<HomePage> {
       onLongPress: onLongPressDetected,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('TooDy ● Il tuo promemoria tascabile'),
+          title: Text('TooDy ● Il tuo promemoria tascabile',style: TextStyle(fontSize: 21,color: Colors.blue[700])),
         ),
       backgroundColor: Colors.yellow[200],
       body: db.toDoList.isEmpty
@@ -158,7 +186,6 @@ class _HomePageState extends State<HomePage> {
                     'Nessuna attività creata',
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
-                  SizedBox(height: 10),  // Aggiungi spazio tra i testi
                   Text(
                     'Tocca e tieni premuto per aggiungere una nuova attività.',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
@@ -174,6 +201,7 @@ class _HomePageState extends State<HomePage> {
                   taskCompleted: db.toDoList[index][1],
                   taskDate: db.toDoList[index][2],
                   onChanged: (value) => checkBoxChanged(value, index),
+                  descr: db.toDoList[index][3],
             );
           },
         ),
