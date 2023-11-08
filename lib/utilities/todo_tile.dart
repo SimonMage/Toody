@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 
 // ignore: must_be_immutable
@@ -73,7 +74,9 @@ class ToDoTile extends StatelessWidget {
                   children: [
                     const Icon(Icons.calendar_month_outlined),
                     const SizedBox(width: 3),
-                    Text("${taskDate!.day}/${taskDate!.month}/${taskDate!.year}"),
+                    Text(DateFormat('dd/MM/yyyy').format(taskDate!), // Usa DateFormat per formattare la data
+                      style: const TextStyle(fontSize: 14.0, color: Colors.black),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 2),
@@ -81,7 +84,9 @@ class ToDoTile extends StatelessWidget {
                   children: [
                     const Icon(Icons.timer_outlined),
                     const SizedBox(width: 3),
-                    Text("${taskDate!.hour}:${taskDate!.minute}")
+                    Text(DateFormat('HH:mm').format(taskDate!), // Usa DateFormat per formattare l'orario
+                      style: const TextStyle(fontSize: 14.0, color: Colors.black),
+                    ),
                   ],
                 )
                 
