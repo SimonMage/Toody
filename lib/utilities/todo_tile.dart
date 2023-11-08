@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:toody/pages/information_page.dart';
+
 
 // ignore: must_be_immutable
 class ToDoTile extends StatelessWidget {
@@ -51,9 +53,18 @@ class ToDoTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                taskName,
-                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18.0,color: Colors.blue[700]),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context)
+                    .push(
+                      MaterialPageRoute(builder: (context) => information_page(taskName: taskName, descr: descr, taskCompleted: taskCompleted, taskDate: taskDate)
+                      )
+                    );
+                },
+                child: Text(
+                  taskName,
+                  style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18.0,color: Colors.blue[700]),
+                ),
               ),
               const SizedBox(height: 4),
               Text(
