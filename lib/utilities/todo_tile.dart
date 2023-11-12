@@ -11,6 +11,9 @@ class ToDoTile extends StatelessWidget {
   final bool taskCompleted;
   Function(bool?)? onChanged;
   final DateTime? taskDate;
+  final bool notifActive;
+  final String notifSound;
+  Function(bool?)? onChanged1;
 
   ToDoTile({
     Key? key,
@@ -19,6 +22,9 @@ class ToDoTile extends StatelessWidget {
     required this.onChanged,
     this.taskDate,
     required this.descr,
+    required this.notifActive,
+    required this.notifSound, 
+    required this.onChanged1,
   }) : super(key: key);
 
 @override
@@ -57,7 +63,7 @@ class ToDoTile extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context)
                     .push(
-                      MaterialPageRoute(builder: (context) => information_page(taskName: taskName, descr: descr, taskCompleted: taskCompleted, taskDate: taskDate)
+                      MaterialPageRoute(builder: (context) => information_page(taskName: taskName, descr: descr, onChanged: onChanged, taskCompleted: taskCompleted, taskDate: taskDate, notifActive: notifActive, notifSound: notifSound, onChanged1: onChanged1)
                       )
                     );
                 },

@@ -27,11 +27,15 @@ class _HomePageState extends State<HomePage> {
       db.loadData();
     }
 
-  super.initState();
-
+  
   // ignore: unused_local_variable
-  ShakeDetector detector = ShakeDetector.autoStart(
+  ShakeDetector detector  = ShakeDetector.autoStart(
+      shakeThresholdGravity: 7,
+      shakeSlopTimeMS: 500,
+      shakeCountResetTime: 3000,
+      minimumShakeCount: 1,
       onPhoneShake: () {
+        print("Hai scosso l'emulatore");
         bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
         if (hasCompletedTask) {
           // ignore: avoid_print
@@ -42,18 +46,31 @@ class _HomePageState extends State<HomePage> {
               i = i - 1;
             }
           }
-          db.updateData();
+            db.updateData();
         }
       },
     );
+
+  super.initState();
   }
   
   DateTime selectedDate = DateTime.now();
   bool isDateSelected = false;
 
-  void checkBoxChanged(bool? value, int index) {
+  void checkBoxChanged(bool? value, int index, int checkbox) {
+    print("Funzione chiamata valore:");
+    print(value);
     setState(() {
-      db.toDoList[index][1] = value ?? false;
+      db.toDoList[index][checkbox] = value! ?? false;
+      db.updateData();
+    });
+  }
+
+  void checkBoxChanged1(bool? value1, int index1, int checkbox1) {
+    print("Funzione 1 chiamata valore:");
+    print(value1);
+    setState(() {
+      db.toDoList[index1][checkbox1] = value1! ?? false;
       db.updateData();
     });
   }
@@ -151,7 +168,7 @@ class _HomePageState extends State<HomePage> {
                 final String descr = nameControllerSecondo.text;
                 if (taskName.isNotEmpty) {
                   setState(() {
-                    db.toDoList.add([taskName, false, selectedDate,descr]);
+                    db.toDoList.add([taskName, false, selectedDate, descr, true, "test"]);
                     db.updateData();
                   });
 
@@ -200,8 +217,11 @@ class _HomePageState extends State<HomePage> {
                   taskName: db.toDoList[index][0],
                   taskCompleted: db.toDoList[index][1],
                   taskDate: db.toDoList[index][2],
-                  onChanged: (value) => checkBoxChanged(value, index),
+                  onChanged: (value) => checkBoxChanged(value, index, 1),
                   descr: db.toDoList[index][3],
+                  notifActive: db.toDoList[index][4],
+                  notifSound: db.toDoList[index][5],
+                  onChanged1: (value) => checkBoxChanged1(value, index, 4),
             );
           },
         ),
