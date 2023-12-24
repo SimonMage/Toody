@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
-// ignore: unused_import
-import 'package:intl/intl.dart'; // Assicurati di aver importato la libreria Intl
 import 'package:toody/utilities/todo_tile.dart';
-
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:shake/shake.dart';
-
 import 'package:toody/pages/settings_page.dart';
-
 import 'package:vibration/vibration.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,7 +27,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     super.initState();
-    ShakeDetector detector = ShakeDetector.autoStart(
+    ShakeDetector.autoStart(
       onPhoneShake: () {
         setState(() {
           bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
@@ -45,21 +40,11 @@ class _HomePageState extends State<HomePage> {
             }
             db.updateData();
             ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Attività svolte cancellate',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Color.fromARGB(255, 0, 9, 135),
-          ),
-        );
-        //Vibration.vibrate(duration: 1000);
-        Vibration.vibrate(
-          pattern: [200, 300, 400],
-          intensities: [200, 0, 100],
-        );
+              const SnackBar(
+                content: Text('Attività svolte cancellate', style: TextStyle(color: Colors.white)),
+                backgroundColor: Color.fromARGB(255, 0, 9, 135)));
+            //Vibration.vibrate(duration: 1000);
+            Vibration.vibrate(pattern: [200, 300, 400], intensities: [200, 0, 100]);
           }
         });
       },
@@ -80,20 +65,20 @@ class _HomePageState extends State<HomePage> {
 
   void checkBoxChanged(bool? value, int index, int checkbox) {
     setState(() {
-      db.toDoList[index][checkbox] = value! ?? false;
+      db.toDoList[index][checkbox] = value!;
       db.updateData();
     });
   }
 
 
-
+  //funzione che data una strina la riduce alla lunghezzamassima voluta
   String abbreviaStringa(String input, int lunghezzaMassima) {
-  if (input.length <= lunghezzaMassima) {
-    return input;
-  } else {
-    return '${input.substring(0, lunghezzaMassima)}...';
+    if (input.length <= lunghezzaMassima) {
+      return input;
+    } else {
+      return '${input.substring(0, lunghezzaMassima)}...';
+    }
   }
-}
 
 
   void onLongPressDetected() async {
@@ -109,41 +94,32 @@ class _HomePageState extends State<HomePage> {
               color: Colors.yellow[200],
               child: Text("Aggiungi una nuova attività",
                   style: TextStyle(color: Colors.blue[700], fontSize: 21))),
-          scrollable: true,
+          scrollable: true, //alertdialog se non c'entra nello schermo scrollabile
           backgroundColor: Colors.yellow[200],
           shadowColor: Colors.yellow,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15))),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))), //bordi tondi
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                //Limite lunghezza nome dell'attività
-                maxLength: 15,
+                maxLength: 15, //limite lunghezza titolo
                 cursorColor: Colors.blue,
                 decoration: InputDecoration(
                     labelText: 'Nome',
                     labelStyle: TextStyle(color: Colors.blue[700]),
-                    enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue))),
+                    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)))
               ),
               TextField(
                 controller: descrController,
-                //Limite lunghezza nome dell'attività
-                maxLength: 100,
+                maxLength: 100, //limite lunghezza descrizione
                 cursorColor: Colors.blue,
                 decoration: InputDecoration(
                     labelText: 'Descrizione',
                     labelStyle: TextStyle(color: Colors.blue[700]),
-                    enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue))),
+                    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)))
               ),
               Row(
                 children: [
@@ -151,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                   TextButton(
                     onPressed: () async {
                       final date = await DatePicker.showDateTimePicker(
-                        locale: LocaleType.it,
+                        locale: LocaleType.it, //italiano
                         context,
                         showTitleActions: true,
                         onConfirm: (date) {
@@ -170,17 +146,13 @@ class _HomePageState extends State<HomePage> {
                         });
                       }
                     },
-                    child: Text(
-                      isDateSelected ? 'Modifica' : 'Modifica',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                ],
+                    child: Text(isDateSelected ? 'Modifica' : 'Modifica', style: const TextStyle(color: Colors.blue))
+                  )
+                ]
               ),
               Row(
                 children: [
+                  const Text("Notifica"),
                   Transform.scale(
                       scale: 1.5,
                       child: Checkbox(
@@ -188,25 +160,20 @@ class _HomePageState extends State<HomePage> {
                         //onChanged: onChanged1,
                         onChanged: (bool? value) {
                           setState(() {
-                            print("Changing");
-                            print(value);
+                           // print("Changing");
+                            //print(value);
                             notifActive = value ?? false;
                           });
                         },
-                        checkColor: Colors.blue[700],
-                        activeColor: Colors.yellow,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3.0),
-                        ),
-                        side: MaterialStateBorderSide.resolveWith((states) =>
-                            BorderSide(
-                                width: 2.0,
-                                color: Colors.blue[700] ?? Colors.blue)),
-                      )),
-                  const Text("Notifica"),
-                ],
-              ),
-            ],
+                        checkColor: Colors.blue[700], //colore spunta
+                        activeColor: Colors.yellow[200],  //colore interno checkbox
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3.0)), //bordi tondi
+                        side: MaterialStateBorderSide.resolveWith((states) => BorderSide(width: 2.0, color: Colors.blue[700] ?? Colors.blue))
+                      )
+                  )
+                ]
+              )
+            ]
           ),
           actions: [
             TextButton(
@@ -232,24 +199,21 @@ class _HomePageState extends State<HomePage> {
                     ]);
                     db.updateData();
                   });
-
                   Navigator.pop(context);
                   selectedDate =DateTime.now();
-
                 }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.blue[700]),
               child: const Text('Aggiungi'),
-            ),
-          ],
+            )
+          ]
         );
-      },
+      }
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
     return GestureDetector(
       onLongPress: onLongPressDetected,
       child: Scaffold(
@@ -257,38 +221,32 @@ class _HomePageState extends State<HomePage> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('TooDy ● Il tuo promemoria tascabile',
-                  style: TextStyle(fontSize: 20, color: Colors.blue[700])),
+              Text('TooDy ● Il tuo promemoria tascabile', style: TextStyle(fontSize: 20, color: Colors.blue[700]))
             ],
           ),
           actions: [
-             IconButton(
+             IconButton( //bottone setting
                 iconSize: 30,
                 icon: const Icon(Icons.settings),
                 onPressed: () {
                   Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => settings_page()));
+                      MaterialPageRoute(builder: (context) => const SettingsPage()));
                 },
                 color: Colors.blue[700],
-              ),
-          ],
+              )
+          ]
         ),
-        backgroundColor: Colors.yellow[200],
+        backgroundColor: Colors.yellow[200], //colore background principale
         body: db.toDoList.isEmpty
             ? const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      'Nessuna attività creata',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                    Text(
-                      'Tocca e tieni premuto per aggiungere una nuova attività.',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
-                ),
+                    Text('Nessuna attività creata', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                    Text('Tieni premuto per aggiungere una nuova attività', style: TextStyle(fontSize: 14, color: Colors.grey))
+                  ]
+                )
               )
             : ListView.builder(
                 itemCount: db.toDoList.length,
@@ -303,9 +261,9 @@ class _HomePageState extends State<HomePage> {
                     notifSound: db.toDoList[index][5],
                     onChanged1: (value) => checkBoxChanged(value, index, 4),
                   );
-                },
-              ),
-      ),
+                }
+              )
+      )
     );
   }
 }

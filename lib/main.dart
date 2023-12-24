@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'pages/home_page.dart';
-// ignore: depend_on_referenced_packages
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -14,8 +12,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform
   );
   await Hive.initFlutter();
-  // ignore: unused_local_variable
-  var box = await Hive.openBox('mybox');
+  await Hive.openBox('mybox');
+
+  //imposta orientamenti permessi
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
@@ -28,6 +27,8 @@ class MyApp extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+
+    //delegates localizazzione
     final localizationsDelegates = [
       GlobalMaterialLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,

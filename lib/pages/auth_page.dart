@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:toody/pages/home_page.dart';
 import 'package:toody/pages/login_page.dart';
 
-class auth_page extends StatelessWidget {
-  const auth_page({super.key});
+class AuthPage extends StatelessWidget {
+  const AuthPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +14,11 @@ class auth_page extends StatelessWidget {
         builder: (context, snapshot) {
           //L'utente ha eseguito l'accesso
           if (snapshot.hasData) {
-            return HomePage();
+            return const HomePage();
           }
           //L'utente non ha eseguito l'accesso
           else {
-            return login_page();
+            return LoginPage();
           }
         },
       ),
