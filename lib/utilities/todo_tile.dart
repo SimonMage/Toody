@@ -26,12 +26,19 @@ class ToDoTile extends StatelessWidget {
     required this.onChanged1,
   }) : super(key: key);
 
+  String abbreviaStringa(String input, int lunghezzaMassima) {
+  if (input.length <= lunghezzaMassima) {
+    return input;
+  } else {
+    return '${input.substring(0, lunghezzaMassima)}...';
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
         width: double.infinity,
-        //color: Colors.yellow,
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.yellow),
@@ -82,10 +89,11 @@ class ToDoTile extends StatelessWidget {
                           fontSize: 18.0,
                           color: Colors.blue[700]),
                     ),
+                    style: ButtonStyle(alignment: Alignment.centerLeft,padding: MaterialStatePropertyAll(EdgeInsets.all(0),),),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 0),
                   Text(
-                    descr,
+                    abbreviaStringa(descr, 20),
                     style: const TextStyle(fontSize: 14.0, color: Colors.black),
                   )
                 ],

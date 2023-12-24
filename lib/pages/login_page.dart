@@ -17,11 +17,20 @@ class login_page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.yellow,
-      body: Center(
-        child: SafeArea(
-          child: Column(
-            children: [
+          body: Container(
+            color: Colors.yellow[200],
+            child: Center(
+              child: FractionallySizedBox(
+                widthFactor: 0.95, 
+                heightFactor: 0.92,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.yellow,
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
               Text(
                 "Accedi e usa TooDy su più dispositivi",
                 style: TextStyle(
@@ -55,9 +64,11 @@ class login_page extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
+                )
+              )
+            )
+          )
+        )
+);
   }
 }

@@ -85,6 +85,17 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+
+
+  String abbreviaStringa(String input, int lunghezzaMassima) {
+  if (input.length <= lunghezzaMassima) {
+    return input;
+  } else {
+    return '${input.substring(0, lunghezzaMassima)}...';
+  }
+}
+
+
   void onLongPressDetected() async {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController descrController = TextEditingController();
@@ -123,7 +134,7 @@ class _HomePageState extends State<HomePage> {
               TextField(
                 controller: descrController,
                 //Limite lunghezza nome dell'attività
-                maxLength: 20,
+                maxLength: 100,
                 cursorColor: Colors.blue,
                 decoration: InputDecoration(
                     labelText: 'Descrizione',
@@ -149,7 +160,7 @@ class _HomePageState extends State<HomePage> {
                             isDateSelected = true;
                           });
                         },
-                        currentTime: selectedDate,
+                        currentTime: selectedDate
                       );
 
                       if (date == null) {
@@ -192,7 +203,7 @@ class _HomePageState extends State<HomePage> {
                                 width: 2.0,
                                 color: Colors.blue[700] ?? Colors.blue)),
                       )),
-                  Text("Notifica"),
+                  const Text("Notifica"),
                 ],
               ),
             ],
@@ -223,6 +234,8 @@ class _HomePageState extends State<HomePage> {
                   });
 
                   Navigator.pop(context);
+                  selectedDate =DateTime.now();
+
                 }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.blue[700]),
@@ -242,11 +255,14 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text('TooDy ● Il tuo promemoria tascabile',
                   style: TextStyle(fontSize: 20, color: Colors.blue[700])),
-              const SizedBox(width: 7),
-              IconButton(
+            ],
+          ),
+          actions: [
+             IconButton(
                 iconSize: 30,
                 icon: const Icon(Icons.settings),
                 onPressed: () {
@@ -255,8 +271,7 @@ class _HomePageState extends State<HomePage> {
                 },
                 color: Colors.blue[700],
               ),
-            ],
-          ),
+          ],
         ),
         backgroundColor: Colors.yellow[200],
         body: db.toDoList.isEmpty
