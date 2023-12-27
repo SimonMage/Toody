@@ -30,11 +30,11 @@ class _HomePageState extends State<HomePage> {
     ShakeDetector.autoStart(
       onPhoneShake: () {
         setState(() {
-          bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
+          bool hasCompletedTask = db.toDoListOgg.any((task) => task.taskCompletedData == true);
           if (hasCompletedTask) {
-            for (var i = 0; i < db.toDoList.length; i++) {
-              if (db.toDoList[i][1] == true) {
-                db.toDoList.remove(db.toDoList[i]);
+            for (var i = 0; i < db.toDoListOgg.length; i++) {
+              if (db.toDoListOgg[i].taskCompletedData== true) {
+                db.toDoListOgg.remove(db.toDoListOgg[i]);
                 i = i - 1;
               }
             }
@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Attività svolte cancellate', style: TextStyle(color: Colors.white)),
-                backgroundColor: Color.fromARGB(255, 0, 9, 135)));
+                backgroundColor: Color.fromRGBO(25, 118, 210, 1)));
             //Vibration.vibrate(duration: 1000);
             Vibration.vibrate(pattern: [200, 300, 400], intensities: [200, 0, 100]);
           }
@@ -63,9 +63,18 @@ class _HomePageState extends State<HomePage> {
   DateTime selectedDate = DateTime.now();
   bool isDateSelected = false;
 
-  void checkBoxChanged(bool? value, int index, int checkbox) {
+//funzione per cambiare valore checkbox della task
+  void checkboxTask(bool? value, int index) {
     setState(() {
-      db.toDoList[index][checkbox] = value!;
+      db.toDoListOgg[index].taskCompletedData = value!;
+      db.updateData();
+    });
+  }
+  
+//funzione per cambiare valore checkbox della notifica
+  void checkboxNotif(bool? value, int index) {
+    setState(() {
+      db.toDoListOgg[index].checkboxNotif = value!;
       db.updateData();
     });
   }
@@ -189,14 +198,10 @@ class _HomePageState extends State<HomePage> {
                 final String descr = descrController.text;
                 if (taskName.isNotEmpty) {
                   setState(() {
-                    db.toDoList.add([
-                      taskName,
-                      false,
-                      selectedDate,
-                      descr,
-                      notifActive,
-                      "test"
-                    ]);
+                    TileData nuova = TileData(taskNameData: taskName, taskCompletedData: false, descrData: descr, taskDateData: selectedDate, notifSoundData: "test", notifActiveData: notifActive);
+                    db.toDoListOgg.add(nuova);
+                    debugPrint (nuova.toString());
+                    debugPrint("\nelementi ${db.toDoListOgg.length}");
                     db.updateData();
                   });
                   Navigator.pop(context);
@@ -237,7 +242,7 @@ class _HomePageState extends State<HomePage> {
           ]
         ),
         backgroundColor: Colors.yellow[200], //colore background principale
-        body: db.toDoList.isEmpty
+        body: db.toDoListOgg.isEmpty
             ? const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -249,17 +254,17 @@ class _HomePageState extends State<HomePage> {
                 )
               )
             : ListView.builder(
-                itemCount: db.toDoList.length,
+                itemCount: db.toDoListOgg.length,
                 itemBuilder: (context, index) {
                   return ToDoTile(
-                    taskName: db.toDoList[index][0],
-                    taskCompleted: db.toDoList[index][1],
-                    taskDate: db.toDoList[index][2],
-                    onChanged: (value) => checkBoxChanged(value, index, 1),
-                    descr: db.toDoList[index][3],
-                    notifActive: db.toDoList[index][4],
-                    notifSound: db.toDoList[index][5],
-                    onChanged1: (value) => checkBoxChanged(value, index, 4),
+                    taskName: db.toDoListOgg[index].taskNameData,
+                    taskCompleted: db.toDoListOgg[index].taskCompletedData,
+                    taskDate: db.toDoListOgg[index].taskDateData,
+                    onChanged: (value) => checkboxTask(value, index),
+                    descr: db.toDoListOgg[index].descrData,
+                    notifActive: db.toDoListOgg[index].notifActiveData,
+                    notifSound: db.toDoListOgg[index].notifSoundData,
+                    onChanged1: (value) => checkboxNotif(value, index),
                   );
                 }
               )

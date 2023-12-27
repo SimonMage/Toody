@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:toody/utilities/todo_database.dart';
 import 'pages/home_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -12,6 +13,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform
   );
   await Hive.initFlutter();
+  Hive.registerAdapter(TileDataAdapter());  //per ogni tipo prima di usare Hive devi registrare il suo adattatore
   await Hive.openBox('mybox');
 
   //imposta orientamenti permessi
