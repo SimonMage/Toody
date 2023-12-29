@@ -1,11 +1,48 @@
-// ignore_for_file: file_names
 import 'package:hive_flutter/hive_flutter.dart';
+part 'todo_database.g.dart'; //todo_database.g.dart fa parte di questo file
 
-//import '../firebase_options.dart';
+//serve id per ogni classe che vuoi salvare con Hive e id (unico per la classe) per ogni parametro da salvare
+//annotazioni servono per generare automaticamente todo_database.g.dart con un adattatore per la classe (che converte l'oggetto da e a binario)
+@HiveType(typeId: 1)
+class TileData extends HiveObject {
+
+  @HiveField(0)
+  String taskNameData;
+
+  @HiveField(1)  
+  String descrData;
+
+  @HiveField(2)
+  DateTime? taskDateData;
+
+  @HiveField(3)
+  bool taskCompletedData;
+
+  @HiveField(4)
+  bool notifActiveData;
+
+  @HiveField(5)
+  String notifSoundData;
+
+  TileData({
+    required this.taskNameData,
+    required this.taskCompletedData,
+    required this.taskDateData,
+    required this.descrData,
+    required this.notifActiveData,
+    required this.notifSoundData
+  });
+
+@override
+  String toString() {
+    return "taskNameData: $taskNameData\ntaskCompletedData: $taskCompletedData\ntaskDateData: $taskDateData\ndescrData:$descrData";
+  }
+
+}
 
 
 class ToDoDatabase {
-  List<dynamic> toDoList = [];
+  List<dynamic> toDoListOgg = []; //lista di oggetti TileData
 
   final _myBox = Hive.box('mybox');
 
@@ -18,15 +55,17 @@ class ToDoDatabase {
   //Metodo che carica i dati dal database
   //Database ---> App
   void loadData() {
-    toDoList = _myBox.get("TODO");
+    toDoListOgg = _myBox.get("TODO");
   }
+  
 
   //Metodo che aggiorna i dati presenti sul database
   //App ---> Database
   void updateData() {
     //Ordinamento delle attività per data
-    toDoList.sort((a, b) => a[2].compareTo(b[2]));
-    _myBox.put("TODO", toDoList);
+    
+    toDoListOgg.sort((a, b) => a.taskDateData.compareTo(b.taskDateData));
+    _myBox.put("TODO", toDoListOgg);
   }
 
   //bool isThereData() {

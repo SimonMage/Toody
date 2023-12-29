@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
-// ignore: unused_import
-import 'package:intl/intl.dart'; // Assicurati di aver importato la libreria Intl
 import 'package:toody/utilities/todo_tile.dart';
-
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:shake/shake.dart';
-
 import 'package:toody/pages/settings_page.dart';
-
 import 'package:vibration/vibration.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,34 +27,24 @@ class _HomePageState extends State<HomePage> {
     }
 
     super.initState();
-    ShakeDetector detector = ShakeDetector.autoStart(
+    ShakeDetector.autoStart(
       onPhoneShake: () {
         setState(() {
-          bool hasCompletedTask = db.toDoList.any((task) => task[1] == true);
+          bool hasCompletedTask = db.toDoListOgg.any((task) => task.taskCompletedData == true);
           if (hasCompletedTask) {
-            for (var i = 0; i < db.toDoList.length; i++) {
-              if (db.toDoList[i][1] == true) {
-                db.toDoList.remove(db.toDoList[i]);
+            for (var i = 0; i < db.toDoListOgg.length; i++) {
+              if (db.toDoListOgg[i].taskCompletedData== true) {
+                db.toDoListOgg.remove(db.toDoListOgg[i]);
                 i = i - 1;
               }
             }
             db.updateData();
             ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Attività svolte cancellate',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Color.fromARGB(255, 0, 9, 135),
-          ),
-        );
-        //Vibration.vibrate(duration: 1000);
-        Vibration.vibrate(
-          pattern: [200, 300, 400],
-          intensities: [200, 0, 100],
-        );
+              const SnackBar(
+                content: Text('Attività svolte cancellate', style: TextStyle(color: Colors.white)),
+                backgroundColor: Color.fromRGBO(25, 118, 210, 1)));
+            //Vibration.vibrate(duration: 1000);
+            Vibration.vibrate(pattern: [200, 300, 400], intensities: [200, 0, 100]);
           }
         });
       },
@@ -78,12 +63,32 @@ class _HomePageState extends State<HomePage> {
   DateTime selectedDate = DateTime.now();
   bool isDateSelected = false;
 
-  void checkBoxChanged(bool? value, int index, int checkbox) {
+//funzione per cambiare valore checkbox della task
+  void checkboxTask(bool? value, int index) {
     setState(() {
-      db.toDoList[index][checkbox] = value! ?? false;
+      db.toDoListOgg[index].taskCompletedData = value!;
       db.updateData();
     });
   }
+  
+//funzione per cambiare valore checkbox della notifica
+  void checkboxNotif(bool? value, int index) {
+    setState(() {
+      db.toDoListOgg[index].checkboxNotif = value!;
+      db.updateData();
+    });
+  }
+
+
+  //funzione che data una strina la riduce alla lunghezzamassima voluta
+  String abbreviaStringa(String input, int lunghezzaMassima) {
+    if (input.length <= lunghezzaMassima) {
+      return input;
+    } else {
+      return '${input.substring(0, lunghezzaMassima)}...';
+    }
+  }
+
 
   void onLongPressDetected() async {
     final TextEditingController nameController = TextEditingController();
@@ -98,41 +103,32 @@ class _HomePageState extends State<HomePage> {
               color: Colors.yellow[200],
               child: Text("Aggiungi una nuova attività",
                   style: TextStyle(color: Colors.blue[700], fontSize: 21))),
-          scrollable: true,
+          scrollable: true, //alertdialog se non c'entra nello schermo scrollabile
           backgroundColor: Colors.yellow[200],
           shadowColor: Colors.yellow,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15))),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))), //bordi tondi
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                //Limite lunghezza nome dell'attività
-                maxLength: 15,
+                maxLength: 15, //limite lunghezza titolo
                 cursorColor: Colors.blue,
                 decoration: InputDecoration(
                     labelText: 'Nome',
                     labelStyle: TextStyle(color: Colors.blue[700]),
-                    enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue))),
+                    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)))
               ),
               TextField(
                 controller: descrController,
-                //Limite lunghezza nome dell'attività
-                maxLength: 20,
+                maxLength: 100, //limite lunghezza descrizione
                 cursorColor: Colors.blue,
                 decoration: InputDecoration(
                     labelText: 'Descrizione',
                     labelStyle: TextStyle(color: Colors.blue[700]),
-                    enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue))),
+                    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)))
               ),
               Row(
                 children: [
@@ -140,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                   TextButton(
                     onPressed: () async {
                       final date = await DatePicker.showDateTimePicker(
-                        locale: LocaleType.it,
+                        locale: LocaleType.it, //italiano
                         context,
                         showTitleActions: true,
                         onConfirm: (date) {
@@ -149,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                             isDateSelected = true;
                           });
                         },
-                        currentTime: selectedDate,
+                        currentTime: selectedDate
                       );
 
                       if (date == null) {
@@ -159,17 +155,13 @@ class _HomePageState extends State<HomePage> {
                         });
                       }
                     },
-                    child: Text(
-                      isDateSelected ? 'Modifica' : 'Modifica',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                ],
+                    child: Text(isDateSelected ? 'Modifica' : 'Modifica', style: const TextStyle(color: Colors.blue))
+                  )
+                ]
               ),
               Row(
                 children: [
+                  const Text("Notifica"),
                   Transform.scale(
                       scale: 1.5,
                       child: Checkbox(
@@ -177,25 +169,20 @@ class _HomePageState extends State<HomePage> {
                         //onChanged: onChanged1,
                         onChanged: (bool? value) {
                           setState(() {
-                            print("Changing");
-                            print(value);
+                           // print("Changing");
+                            //print(value);
                             notifActive = value ?? false;
                           });
                         },
-                        checkColor: Colors.blue[700],
-                        activeColor: Colors.yellow,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3.0),
-                        ),
-                        side: MaterialStateBorderSide.resolveWith((states) =>
-                            BorderSide(
-                                width: 2.0,
-                                color: Colors.blue[700] ?? Colors.blue)),
-                      )),
-                  Text("Notifica"),
-                ],
-              ),
-            ],
+                        checkColor: Colors.blue[700], //colore spunta
+                        activeColor: Colors.yellow[200],  //colore interno checkbox
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3.0)), //bordi tondi
+                        side: MaterialStateBorderSide.resolveWith((states) => BorderSide(width: 2.0, color: Colors.blue[700] ?? Colors.blue))
+                      )
+                  )
+                ]
+              )
+            ]
           ),
           actions: [
             TextButton(
@@ -211,86 +198,77 @@ class _HomePageState extends State<HomePage> {
                 final String descr = descrController.text;
                 if (taskName.isNotEmpty) {
                   setState(() {
-                    db.toDoList.add([
-                      taskName,
-                      false,
-                      selectedDate,
-                      descr,
-                      notifActive,
-                      "test"
-                    ]);
+                    TileData nuova = TileData(taskNameData: taskName, taskCompletedData: false, descrData: descr, taskDateData: selectedDate, notifSoundData: "test", notifActiveData: notifActive);
+                    db.toDoListOgg.add(nuova);
+                    debugPrint (nuova.toString());
+                    debugPrint("\nelementi ${db.toDoListOgg.length}");
                     db.updateData();
                   });
-
                   Navigator.pop(context);
+                  selectedDate =DateTime.now();
                 }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.blue[700]),
               child: const Text('Aggiungi'),
-            ),
-          ],
+            )
+          ]
         );
-      },
+      }
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
     return GestureDetector(
       onLongPress: onLongPressDetected,
       child: Scaffold(
         appBar: AppBar(
           title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('TooDy ● Il tuo promemoria tascabile',
-                  style: TextStyle(fontSize: 20, color: Colors.blue[700])),
-              const SizedBox(width: 7),
-              IconButton(
+              Text('TooDy ● Il tuo promemoria tascabile', style: TextStyle(fontSize: 20, color: Colors.blue[700]))
+            ],
+          ),
+          actions: [
+             IconButton( //bottone setting
                 iconSize: 30,
                 icon: const Icon(Icons.settings),
                 onPressed: () {
                   Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => settings_page()));
+                      MaterialPageRoute(builder: (context) => const SettingsPage()));
                 },
                 color: Colors.blue[700],
-              ),
-            ],
-          ),
+              )
+          ]
         ),
-        backgroundColor: Colors.yellow[200],
-        body: db.toDoList.isEmpty
+        backgroundColor: Colors.yellow[200], //colore background principale
+        body: db.toDoListOgg.isEmpty
             ? const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      'Nessuna attività creata',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                    Text(
-                      'Tocca e tieni premuto per aggiungere una nuova attività.',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
-                ),
+                    Text('Nessuna attività creata', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                    Text('Tieni premuto per aggiungere una nuova attività', style: TextStyle(fontSize: 14, color: Colors.grey))
+                  ]
+                )
               )
             : ListView.builder(
-                itemCount: db.toDoList.length,
+                itemCount: db.toDoListOgg.length,
                 itemBuilder: (context, index) {
                   return ToDoTile(
-                    taskName: db.toDoList[index][0],
-                    taskCompleted: db.toDoList[index][1],
-                    taskDate: db.toDoList[index][2],
-                    onChanged: (value) => checkBoxChanged(value, index, 1),
-                    descr: db.toDoList[index][3],
-                    notifActive: db.toDoList[index][4],
-                    notifSound: db.toDoList[index][5],
-                    onChanged1: (value) => checkBoxChanged(value, index, 4),
+                    taskName: db.toDoListOgg[index].taskNameData,
+                    taskCompleted: db.toDoListOgg[index].taskCompletedData,
+                    taskDate: db.toDoListOgg[index].taskDateData,
+                    onChanged: (value) => checkboxTask(value, index),
+                    descr: db.toDoListOgg[index].descrData,
+                    notifActive: db.toDoListOgg[index].notifActiveData,
+                    notifSound: db.toDoListOgg[index].notifSoundData,
+                    onChanged1: (value) => checkboxNotif(value, index),
                   );
-                },
-              ),
-      ),
+                }
+              )
+      )
     );
   }
 }
