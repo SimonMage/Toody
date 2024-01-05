@@ -1,11 +1,14 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:toody/pages/auth_page.dart';
+import 'package:toody/utilities/notification_utilities.dart';
 import 'package:toody/utilities/todo_tile.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:shake/shake.dart';
-import 'package:toody/pages/settings_page.dart';
 import 'package:vibration/vibration.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -25,6 +28,15 @@ class _HomePageState extends State<HomePage> {
       //Trovato database
       db.loadData();
     }
+
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+      onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
+      );
+
+      debugPrint("sto settando listern");
 
     super.initState();
     ShakeDetector.autoStart(
@@ -193,7 +205,7 @@ class _HomePageState extends State<HomePage> {
               child: const Text('Annulla'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 final String taskName = nameController.text;
                 final String descr = descrController.text;
                 if (taskName.isNotEmpty) {
@@ -204,8 +216,9 @@ class _HomePageState extends State<HomePage> {
                     debugPrint("\nelementi ${db.toDoListOgg.length}");
                     db.updateData();
                   });
-                  Navigator.pop(context);
-                  selectedDate =DateTime.now();
+                NotificationUtilities.creaNotifica(nome: taskName, descrizione: descr, quando: selectedDate);   
+                Navigator.pop(context);
+                selectedDate =DateTime.now();
                 }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.blue[700]),
@@ -232,10 +245,10 @@ class _HomePageState extends State<HomePage> {
           actions: [
              IconButton( //bottone setting
                 iconSize: 30,
-                icon: const Icon(Icons.settings),
+                icon: const Icon(Icons.account_circle), //per icone https://fonts.google.com/icons?icon.platform=flutter
                 onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const SettingsPage()));
+                     Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const AuthPage()));
                 },
                 color: Colors.blue[700],
               )
