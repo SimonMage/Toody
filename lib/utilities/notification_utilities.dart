@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 
@@ -7,15 +6,15 @@ import 'package:flutter/material.dart';
 
 class NotificationUtilities {
 
-  static void creaNotifica({required String nome, required String descrizione, required DateTime quando}) async {
+  static Future<void> creaNotifica({required String nome, required String descrizione, required DateTime quando, required int idNotif}) async {
 
     AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: Random().nextInt(1000000) + 1,
-        channelKey: "basic_channel",
+        id: idNotif,
+        channelKey: "basic_channel", //deve essere stato inizializzato nel main
         title: nome,
         body: descrizione,
-        category: NotificationCategory.Alarm,
+        category: NotificationCategory.Alarm, //in base a categoria che gli dai usa suono del dispositivo per quella categoria
         notificationLayout: NotificationLayout.BigText, //layout type della notifica
         locked: true, //indica se impedire all'utente di ignorare la notifica
         wakeUpScreen: true, //se notifica riattiva lo schermo
@@ -37,6 +36,10 @@ class NotificationUtilities {
         allowWhileIdle: true //mostra la notifica anche se dispositivo con poca batteria
       )
     );
+  }
+
+  static void cancellaNotifica ({required int idNotif}){
+    AwesomeNotifications().cancel(idNotif); //cancella notifica con quel id
   }
   
 }

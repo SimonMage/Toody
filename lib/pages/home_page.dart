@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
@@ -46,6 +47,8 @@ class _HomePageState extends State<HomePage> {
           if (hasCompletedTask) {
             for (var i = 0; i < db.toDoListOgg.length; i++) {
               if (db.toDoListOgg[i].taskCompletedData== true) {
+                debugPrint("idNotif cancellata ${db.toDoListOgg[i].idNotifify}");
+                NotificationUtilities.cancellaNotifica(idNotif: db.toDoListOgg[i].idNotifify); //cancella notifica di quella task
                 db.toDoListOgg.remove(db.toDoListOgg[i]);
                 i = i - 1;
               }
@@ -113,8 +116,8 @@ class _HomePageState extends State<HomePage> {
         return AlertDialog(
           title: Container(
               color: Colors.yellow[200],
-              child: Text("Aggiungi una nuova attività",
-                  style: TextStyle(color: Colors.blue[700], fontSize: 21))),
+              child: Text("Aggiungi una nuova attività", style: TextStyle(color: Colors.blue[700], fontSize: 21))
+              ),
           scrollable: true, //alertdialog se non c'entra nello schermo scrollabile
           backgroundColor: Colors.yellow[200],
           shadowColor: Colors.yellow,
@@ -190,8 +193,9 @@ class _HomePageState extends State<HomePage> {
                         activeColor: Colors.yellow[200],  //colore interno checkbox
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3.0)), //bordi tondi
                         side: MaterialStateBorderSide.resolveWith((states) => BorderSide(width: 2.0, color: Colors.blue[700] ?? Colors.blue))
-                      )
-                  )
+                      ),
+                      
+                  ),
                 ]
               )
             ]
@@ -208,15 +212,16 @@ class _HomePageState extends State<HomePage> {
               onPressed: () async {
                 final String taskName = nameController.text;
                 final String descr = descrController.text;
+                int idNotifica = Random().nextInt(1000000) + 1; //genera identificatore casuale per la notifica
                 if (taskName.isNotEmpty) {
                   setState(() {
-                    TileData nuova = TileData(taskNameData: taskName, taskCompletedData: false, descrData: descr, taskDateData: selectedDate, notifSoundData: "test", notifActiveData: notifActive);
+                    TileData nuova = TileData(taskNameData: taskName, taskCompletedData: false, descrData: descr, taskDateData: selectedDate, idNotifify: idNotifica, notifSoundData: "test", notifActiveData: notifActive);
                     db.toDoListOgg.add(nuova);
                     debugPrint (nuova.toString());
                     debugPrint("\nelementi ${db.toDoListOgg.length}");
                     db.updateData();
                   });
-                NotificationUtilities.creaNotifica(nome: taskName, descrizione: descr, quando: selectedDate);   
+                NotificationUtilities.creaNotifica(nome: taskName, descrizione: descr, quando: selectedDate, idNotif: idNotifica);  //crea notifica associata
                 Navigator.pop(context);
                 selectedDate =DateTime.now();
                 }

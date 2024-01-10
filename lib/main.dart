@@ -40,12 +40,11 @@ void main() async {
     ]
   );
   bool isAllowToSendNotif = await AwesomeNotifications().isNotificationAllowed(); //verifica se ha i permessi per le notifiche
-  debugPrint('richiesta notifica $isAllowToSendNotif');
+  debugPrint('notifPermesso: $isAllowToSendNotif');
 
   if(!isAllowToSendNotif){
     AwesomeNotifications().requestPermissionToSendNotifications();
   }
-
 
   runApp(const MyApp());
 }

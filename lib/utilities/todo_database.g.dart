@@ -23,13 +23,14 @@ class TileDataAdapter extends TypeAdapter<TileData> {
       descrData: fields[1] as String,
       notifActiveData: fields[4] as bool,
       notifSoundData: fields[5] as String,
+      idNotifify: fields[6] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, TileData obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.taskNameData)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class TileDataAdapter extends TypeAdapter<TileData> {
       ..writeByte(4)
       ..write(obj.notifActiveData)
       ..writeByte(5)
-      ..write(obj.notifSoundData);
+      ..write(obj.notifSoundData)
+      ..writeByte(6)
+      ..write(obj.idNotifify);
   }
 
   @override
