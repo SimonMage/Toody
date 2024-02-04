@@ -47,7 +47,7 @@ class TileData extends HiveObject { //struttura dati che salvi con Hive
 
 
 class ToDoDatabase {
-  List<dynamic> toDoListOgg = []; //lista di oggetti TileData
+  static List<dynamic> toDoListOgg = []; //lista di oggetti TileData
 
   final _myBox = Hive.box('mybox');
 
