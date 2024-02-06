@@ -1,46 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shake/shake.dart';
 import 'package:vibration/vibration.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:toody/utilities/todo_tile_horizontal.dart';
 import 'package:toody/utilities/physics_scroll.dart';
-
+import 'package:toody/pages/home_page.dart';
 
 //Da risolvere bug checkbox
-// ignore: must_be_immutable
 class InformationPage extends StatefulWidget {
   int index; //L'indice dell'elemento di cui si stanno visionando i dettagli
   final Function(bool?)? onChanged;
-  int taskDay; //numero di task del giorno corrente che ci sono
+  static late ShakeDetector detector;
 
   InformationPage({
     Key? key,
     required this.index,
     required this.onChanged,
-    required this.taskDay
     }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api, no_logic_in_create_state
-  _InformationPageState createState() => _InformationPageState(index, onChanged, taskDay);
+  _InformationPageState createState() => _InformationPageState(this.index, this.onChanged);
   }
 
 class _InformationPageState extends State<InformationPage> {
   int index;
   Function(bool?)? onChanged;
-  int taskDay;
-  _InformationPageState(this.index, this.onChanged, this.taskDay);
+  _InformationPageState(this.index, this.onChanged);
 
   final ScrollController _controller = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    ShakeDetector.autoStart(
+    InformationPage.detector = ShakeDetector.autoStart(
       onPhoneShake: () {
         setState(() {
             ScaffoldMessenger.of(context).showSnackBar( //appare snackbar con quante task di oggi ci sono
-               const SnackBar(
+               SnackBar(
                 content: Text('Attività svolta', style: TextStyle(color: Colors.white)),
                 backgroundColor: Color.fromRGBO(25, 118, 210, 1)
                 )
@@ -49,13 +46,9 @@ class _InformationPageState extends State<InformationPage> {
           
         });
         ToDoDatabase.toDoListOgg[index].taskCompletedData=true;
-
-        //index=(_controller.offset/MediaQuery.of(context).size.width).round();
-        //print(index);
-        //setState(() {
-        //  ToDoDatabase.toDoListOgg[index].taskCompletedData=true;
-        //});
-        
+        HomePage.todayTaskToDo=HomePage.todayTaskToDo-1;
+        HomePage.todayTaskDone=HomePage.todayTaskDone+1;
+        ToDoDatabase().updateData();        
         Navigator.pop(context); //torni alla home
       },
       minimumShakeCount: 1,
@@ -149,9 +142,8 @@ class _InformationPageState extends State<InformationPage> {
   Widget build(BuildContext context) {
     //Permette di scorrere all'elemento selezionato
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _controller.animateTo(
-        _controller.offset + MediaQuery.of(context).size.width*index,
-        duration: const Duration(seconds: 2),
+      _controller.animateTo(MediaQuery.of(context).size.width*index,
+        duration: Duration(seconds: 2),
         curve: Curves.fastOutSlowIn,
       );
     });
@@ -159,7 +151,7 @@ class _InformationPageState extends State<InformationPage> {
         backgroundColor: Colors.yellow[200], // Sfondo giallo
         body: Stack(
           children: [
-            SizedBox(
+            Container(
               height: MediaQuery.of(context).size.height * 0.70,
               width: MediaQuery.of(context).size.width,
               child: ListView.builder(
@@ -179,7 +171,14 @@ class _InformationPageState extends State<InformationPage> {
               alignment: Alignment.bottomLeft, //in basso a sinistra
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 20.0, left: 10), //margini da sinistra e dal fondo
-                child: Text('Hai ancora $taskDay task oggi', style: const TextStyle(color: Colors.blue, fontSize: 18.0))
+                child: Text('Hai ancora ${HomePage.todayTaskToDo} attività da completare oggi delle ${HomePage.todayTask} che terminano oggi', style: const TextStyle(color: Colors.blue, fontSize: 18.0)),
+                ),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft, //in basso a sinistra
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20.0, left: 10), //margini da sinistra e dal fondo
+                //child: Text('Hai ancora ${HomePage.todayTaskToDo} task oggi', style: const TextStyle(color: Colors.blue, fontSize: 18.0)),
                 ),
             ),
           ]

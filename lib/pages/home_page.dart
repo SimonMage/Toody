@@ -10,9 +10,13 @@ import 'package:shake/shake.dart';
 import 'package:vibration/vibration.dart';
 
 
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
   static int todayTask = 0; //numero di task di oggi
+  static int todayTaskToDo = 0; //numero di task da fare di oggi
+  static int todayTaskDone = 0; //numero di task totale
+  static late ShakeDetector detector;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -49,27 +53,33 @@ class HomePage extends StatefulWidget {
       textController.text = lines.join('\n');
     }
   }
-
-
 }
 
 class _HomePageState extends State<HomePage> {
   final _myBox = Hive.box('mybox');
   ToDoDatabase db = ToDoDatabase();
-
+  late ShakeDetector detector;
 
 
   //conta il numero di attivita del giorno corrente
   void taskToday (){
    DateTime today = DateTime.now();
-   int count = 0;
+   int countToDo=0;
+   int countDone=0;
     for (var i = 0; i < ToDoDatabase.toDoListOgg.length; i++) {
       DateTime data = ToDoDatabase.toDoListOgg[i].taskDateData;
       if (data.year == today.year && data.month == today.month && data.day == today.day) {
-       count++;
+        if (ToDoDatabase.toDoListOgg[i].taskCompletedData){
+          countDone++;
+        }
+        else {
+          countToDo++;
+        }
       }
     }
-    HomePage.todayTask = count;  
+    HomePage.todayTask = countToDo+countDone;  
+    HomePage.todayTaskToDo = countToDo;
+    HomePage.todayTaskDone = countDone;
   }
 
 
@@ -92,10 +102,7 @@ class _HomePageState extends State<HomePage> {
       );
 
       debugPrint("sto settando listern");
-
-    super.initState();
-      // ignore: unused_local_variable
-      ShakeDetector detector = ShakeDetector.autoStart(
+      HomePage.detector = ShakeDetector.autoStart(
       onPhoneShake: () {
 
         setState(() {
@@ -151,7 +158,11 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-
+  void _loadDataHomePage() {
+      setState(() {
+      db.loadData();
+    });
+  }
   
 
 
@@ -229,6 +240,15 @@ class _HomePageState extends State<HomePage> {
                     child: Text(isDateSelected ? 'Modifica' : 'Modifica', style: const TextStyle(color: Colors.blue))
                   )
                 ]
+              ),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                    },
+                    child: Text('Seleziona icona', style: const TextStyle(color: Colors.blue)),
+                  )
+                ],
               ),
             ]
           ),
@@ -312,6 +332,7 @@ class _HomePageState extends State<HomePage> {
                   return ToDoTile(
                     index: index,
                     onChanged: (value) => checkboxTask(value, index),
+                    loadDataHomePage: _loadDataHomePage,
                   );
                 }
               )

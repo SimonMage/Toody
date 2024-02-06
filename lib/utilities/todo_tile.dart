@@ -7,11 +7,13 @@ import 'package:toody/utilities/todo_database.dart';
 class ToDoTile extends StatelessWidget {
   final int index;
   final Function(bool?)? onChanged;
+  final Function() loadDataHomePage;
 
   const ToDoTile({
     Key? key,
     required this.index,
     required this.onChanged,
+    required this.loadDataHomePage,
   }) : super(key: key);
 
 @override
@@ -21,7 +23,7 @@ class ToDoTile extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(border: Border.all(color: Colors.yellow),
         borderRadius: const BorderRadius.all(Radius.circular(15)), //bordi circolari
-        color: Colors.yellow),
+        color: ToDoDatabase.toDoListOgg[index].taskDateData.day==DateTime.now().day && ToDoDatabase.toDoListOgg[index].taskDateData.month==DateTime.now().month && ToDoDatabase.toDoListOgg[index].taskDateData.year==DateTime.now().year ? Color.fromARGB(255, 255, 204, 0) : Colors.yellow),
       margin: const EdgeInsets.all(9),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -33,7 +35,7 @@ class ToDoTile extends StatelessWidget {
               value: ToDoDatabase.toDoListOgg[index].taskCompletedData,
               onChanged: onChanged,
               checkColor: const Color(0xFF1976D2), //colore spunta
-              activeColor: const Color(0xFFFFEB3B),
+              activeColor: ToDoDatabase.toDoListOgg[index].taskDateData.day==DateTime.now().day && ToDoDatabase.toDoListOgg[index].taskDateData.month==DateTime.now().month && ToDoDatabase.toDoListOgg[index].taskDateData.year==DateTime.now().year ? Color.fromARGB(255, 255, 204, 0) : const Color(0xFFFFEB3B),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3.0)),
               side: MaterialStateBorderSide.resolveWith((states) => const BorderSide(width: 2.0, color: Color(0xFF1976D2))),
             )
@@ -45,14 +47,27 @@ class ToDoTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(
-                  onPressed: () {
-                    //HomePage.detector.stopListening();
+                  onPressed: () async {
+                    //Disattiva il listening della pagina home
+                    await () => HomePage.detector.stopListening();
+
+                    //Attiva il detector della pagina information
+                    await () => InformationPage.detector.startListening();
+
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => InformationPage(
                         index: index,
-                        onChanged: onChanged,
-                        taskDay: HomePage.todayTask) //crea l information page con il numero di task del giorno
-                    ));
+                        onChanged: onChanged) //crea l information page con il numero di task del giorno
+                    )).then((_) async {
+                      //Disattiva il detector della pagina information
+                      await () => InformationPage.detector.stopListening();
+                      
+                      //Riattiva il detector della pagina home quando l'utente torna indietro
+                      await () => HomePage.detector.startListening();
+
+                      loadDataHomePage();
+                      }
+                    );
                   },
                   style: const ButtonStyle(alignment: Alignment.centerLeft,padding: MaterialStatePropertyAll(EdgeInsets.all(0))),
                   child: Text(ToDoDatabase.toDoListOgg[index].taskNameData, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: Color(0xFF1976D2)))

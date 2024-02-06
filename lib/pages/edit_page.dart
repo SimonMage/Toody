@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:toody/utilities/todo_database.dart';
 
-// ignore: must_be_immutable
 class EditPage extends StatefulWidget {
   int index; //L'indice dell'elemento di cui si stanno visionando i dettagli
   final Function(bool?)? onChanged;
@@ -15,8 +14,7 @@ class EditPage extends StatefulWidget {
     }) : super(key: key);
     
   @override
-  // ignore: library_private_types_in_public_api, no_logic_in_create_state
-  _EditPageState createState() => _EditPageState(index, onChanged);
+  _EditPageState createState() => _EditPageState(this.index, this.onChanged);
 
   static void limitLines(String text, int maxLines, TextEditingController textController)  {
     var lines = text.split('\n');
@@ -96,7 +94,7 @@ class _EditPageState extends State<EditPage> {
                         });
                       }
                     },
-                    child: const Text('Modifica', style: TextStyle(color: Colors.blue))
+                    child: Text('Modifica', style: const TextStyle(color: Colors.blue))
                   )
                 ]
               ),
@@ -107,6 +105,7 @@ class _EditPageState extends State<EditPage> {
                 ToDoDatabase.toDoListOgg[index].taskDateData=selectedDate;
                 ToDoDatabase.toDoListOgg[index].taskNameData=nameController.text;
                 ToDoDatabase.toDoListOgg[index].descrData=descrController.text;
+                ToDoDatabase().updateData();
                 Navigator.pop(context);
               },
             ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:toody/pages/home_page.dart';
+import 'package:toody/pages/information_page.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:toody/pages/edit_page.dart';
 
@@ -22,7 +24,7 @@ class ToDoTileHorizontal extends StatelessWidget {
                 width: MediaQuery.of(context).size.width-20,
                 height: MediaQuery.of(context).size.height * 0.6, //percentuale di grandezza container
                 decoration: BoxDecoration(  //bordi container tondi
-                color: Colors.yellow, borderRadius: BorderRadius.circular(20.0)),
+                color: ToDoDatabase.toDoListOgg[index].taskDateData.day==DateTime.now().day && ToDoDatabase.toDoListOgg[index].taskDateData.month==DateTime.now().month && ToDoDatabase.toDoListOgg[index].taskDateData.year==DateTime.now().year ? Color.fromARGB(255, 255, 204, 0) : Colors.yellow, borderRadius: BorderRadius.circular(20.0)),
                 padding: const EdgeInsets.only(left:10.0, right:10.0, top: 10), //spazio vuoto tra limite container e contenuto container
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,15 +32,23 @@ class ToDoTileHorizontal extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(ToDoDatabase.toDoListOgg[index].taskNameData, style: TextStyle(fontSize: 30.0, color: Colors.blue[700], fontWeight: FontWeight.w500)),
+                        Text(
+                          ToDoDatabase.toDoListOgg[index].taskNameData, 
+                          style: TextStyle(
+                            fontSize: 40.0, 
+                            color: Colors.blue[700], 
+                            fontWeight: FontWeight.w500,
+                            decoration: ToDoDatabase.toDoListOgg[index].taskCompletedData ? TextDecoration.lineThrough : TextDecoration.none)
+                          ),
                         IconButton( //bottone edit
                           iconSize: 30,
                           icon: const Icon(Icons.edit),
+                          alignment: Alignment.centerRight,
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => EditPage(
                                 index: index,
-                                onChanged: onChanged,) //crea l information page con il numero di task del giorno
+                                onChanged: onChanged,)
                             ));
                           },
                           color: Colors.blue[700],
@@ -50,11 +60,11 @@ class ToDoTileHorizontal extends StatelessWidget {
                       children: [
                         const Icon(Icons.calendar_month_outlined, size:20),
                         const SizedBox(width: 3), //spazio tra icona calendario e data
-                        Text(DateFormat('dd/MM/yyyy').format(ToDoDatabase.toDoListOgg[index].taskDateData!), style: const TextStyle(fontSize: 12.0, color: Colors.black)),
+                        Text(DateFormat('dd/MM/yyyy').format(ToDoDatabase.toDoListOgg[index].taskDateData!), style: const TextStyle(fontSize: 15, color: Colors.black)),
                         const SizedBox(width: 10), //spazio tra stringa data e icona orologio
                         const Icon(Icons.timer_outlined, size: 20),
                         const SizedBox(width: 3), //spazio tra icona orologio e ora
-                        Text(DateFormat('HH:mm').format(ToDoDatabase.toDoListOgg[index].taskDateData!),style: const TextStyle(fontSize: 12.0, color: Colors.black)),
+                        Text(DateFormat('HH:mm').format(ToDoDatabase.toDoListOgg[index].taskDateData!),style: const TextStyle(fontSize: 15, color: Colors.black)),
                       ]
                     ),
                     const SizedBox(height: 15), //spazio tra data/ora e descrizione

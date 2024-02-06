@@ -6,6 +6,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
+//Risolto bug scroll orizzontale dopo navigator.pop
+//Colore differente a seconda che attività è da svolgere in giornata oppure no
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
