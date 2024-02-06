@@ -1,22 +1,77 @@
+import 'dart:math';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:toody/utilities/notification_utilities.dart';
 import 'package:toody/utilities/todo_tile.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:shake/shake.dart';
-import 'package:toody/pages/settings_page.dart';
 import 'package:vibration/vibration.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+  static int todayTask = 0; //numero di task di oggi
 
   @override
   State<HomePage> createState() => _HomePageState();
+
+  //funzione che data una stringa la riduce alla lunghezzamassima voluta
+  static String abbreviaStringa(String input, int lunghezzaMassima) {
+    if (input.length <= lunghezzaMassima) {
+      return input;
+    } else {
+      return '${input.substring(0, lunghezzaMassima)}...';
+    }
+  }
+
+  static String primaRiga(String input) {
+    int indiceRitornoACapo = input.indexOf('\n');
+
+    if (indiceRitornoACapo != -1) {
+      return "${input.substring(0, indiceRitornoACapo)}..."; //se c'e un ritorno a capo ritorni la prima riga
+    } else {
+      return input; ////se non c'e un ritorno a capo ritorni la stringa originale
+    }
+  }
+
+  //elimina tutti i ritorni a capo
+  static String rimuoviRitorniACapo(String input) {
+    return input.replaceAll('\n', '');
+  }
+
+  //gestisce il TextEditingController per non fargli digitare piu di un numero di righe
+  static void limitLines(String text, int maxLines, TextEditingController textController)  {
+    var lines = text.split('\n');
+    if (lines.length > maxLines) {
+      lines.removeRange(maxLines, lines.length);
+      textController.text = lines.join('\n');
+    }
+  }
+
+
 }
 
 class _HomePageState extends State<HomePage> {
   final _myBox = Hive.box('mybox');
   ToDoDatabase db = ToDoDatabase();
+
+
+
+  //conta il numero di attivita del giorno corrente
+  void taskToday (){
+   DateTime today = DateTime.now();
+   int count = 0;
+    for (var i = 0; i < ToDoDatabase.toDoListOgg.length; i++) {
+      DateTime data = ToDoDatabase.toDoListOgg[i].taskDateData;
+      if (data.year == today.year && data.month == today.month && data.day == today.day) {
+       count++;
+      }
+    }
+    HomePage.todayTask = count;  
+  }
+
 
   @override
   void initState() {
@@ -26,19 +81,36 @@ class _HomePageState extends State<HomePage> {
       db.loadData();
     }
 
+    taskToday(); //inizializzi numero di task di oggi
+
+
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+      onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
+      );
+
+      debugPrint("sto settando listern");
+
     super.initState();
-    ShakeDetector.autoStart(
+      // ignore: unused_local_variable
+      ShakeDetector detector = ShakeDetector.autoStart(
       onPhoneShake: () {
+
         setState(() {
-          bool hasCompletedTask = db.toDoListOgg.any((task) => task.taskCompletedData == true);
+          bool hasCompletedTask = ToDoDatabase.toDoListOgg.any((task) => task.taskCompletedData == true);
           if (hasCompletedTask) {
-            for (var i = 0; i < db.toDoListOgg.length; i++) {
-              if (db.toDoListOgg[i].taskCompletedData== true) {
-                db.toDoListOgg.remove(db.toDoListOgg[i]);
+            for (var i = 0; i < ToDoDatabase.toDoListOgg.length; i++) {
+              if (ToDoDatabase.toDoListOgg[i].taskCompletedData== true) {
+                debugPrint("idNotif cancellata ${ToDoDatabase.toDoListOgg[i].idNotifify}");
+                NotificationUtilities.cancellaNotifica(idNotif: ToDoDatabase.toDoListOgg[i].idNotifify); //cancella notifica di quella task
+                ToDoDatabase.toDoListOgg.remove(ToDoDatabase.toDoListOgg[i]);
                 i = i - 1;
               }
             }
             db.updateData();
+            taskToday(); //aggiorni il numero di task di oggi
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Attività svolte cancellate', style: TextStyle(color: Colors.white)),
@@ -66,7 +138,7 @@ class _HomePageState extends State<HomePage> {
 //funzione per cambiare valore checkbox della task
   void checkboxTask(bool? value, int index) {
     setState(() {
-      db.toDoListOgg[index].taskCompletedData = value!;
+      ToDoDatabase.toDoListOgg[index].taskCompletedData = value!;
       db.updateData();
     });
   }
@@ -74,20 +146,13 @@ class _HomePageState extends State<HomePage> {
 //funzione per cambiare valore checkbox della notifica
   void checkboxNotif(bool? value, int index) {
     setState(() {
-      db.toDoListOgg[index].checkboxNotif = value!;
+      ToDoDatabase.toDoListOgg[index].checkboxNotif = value!;
       db.updateData();
     });
   }
 
 
-  //funzione che data una strina la riduce alla lunghezzamassima voluta
-  String abbreviaStringa(String input, int lunghezzaMassima) {
-    if (input.length <= lunghezzaMassima) {
-      return input;
-    } else {
-      return '${input.substring(0, lunghezzaMassima)}...';
-    }
-  }
+  
 
 
   void onLongPressDetected() async {
@@ -100,11 +165,11 @@ class _HomePageState extends State<HomePage> {
         bool notifActive = true;
         return AlertDialog(
           title: Container(
-              color: Colors.yellow[200],
-              child: Text("Aggiungi una nuova attività",
-                  style: TextStyle(color: Colors.blue[700], fontSize: 21))),
+              color: const Color(0xFFFFF59D),
+              child: const Text("Aggiungi una nuova attività", style: TextStyle(color: Color(0xFF1976D2), fontSize: 21))
+              ),
           scrollable: true, //alertdialog se non c'entra nello schermo scrollabile
-          backgroundColor: Colors.yellow[200],
+          backgroundColor: const Color(0xFFFFF59D),
           shadowColor: Colors.yellow,
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))), //bordi tondi
           content: Column(
@@ -114,21 +179,27 @@ class _HomePageState extends State<HomePage> {
                 controller: nameController,
                 maxLength: 15, //limite lunghezza titolo
                 cursorColor: Colors.blue,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                     labelText: 'Nome',
-                    labelStyle: TextStyle(color: Colors.blue[700]),
-                    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)))
+                    labelStyle: TextStyle(color: Color(0xFF1976D2)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)))
               ),
               TextField(
                 controller: descrController,
                 maxLength: 100, //limite lunghezza descrizione
                 cursorColor: Colors.blue,
-                decoration: InputDecoration(
+                maxLines: 3,  //massima altezza che prende il textfield
+                minLines: 1,  //minima altezza che prende il tetxfield
+                onChanged: (text) { //chiama la funzione per non far digitare piu di un tot di righe
+                  HomePage.limitLines(text, 12, descrController);
+                },
+                keyboardType: TextInputType.multiline, //appare la tastiera non con invio ma con rimando a capo
+                decoration: const InputDecoration(
                     labelText: 'Descrizione',
-                    labelStyle: TextStyle(color: Colors.blue[700]),
-                    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)))
+                    labelStyle: TextStyle(color: Color(0xFF1976D2)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)))
               ),
               Row(
                 children: [
@@ -159,29 +230,6 @@ class _HomePageState extends State<HomePage> {
                   )
                 ]
               ),
-              Row(
-                children: [
-                  const Text("Notifica"),
-                  Transform.scale(
-                      scale: 1.5,
-                      child: Checkbox(
-                        value: notifActive,
-                        //onChanged: onChanged1,
-                        onChanged: (bool? value) {
-                          setState(() {
-                           // print("Changing");
-                            //print(value);
-                            notifActive = value ?? false;
-                          });
-                        },
-                        checkColor: Colors.blue[700], //colore spunta
-                        activeColor: Colors.yellow[200],  //colore interno checkbox
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3.0)), //bordi tondi
-                        side: MaterialStateBorderSide.resolveWith((states) => BorderSide(width: 2.0, color: Colors.blue[700] ?? Colors.blue))
-                      )
-                  )
-                ]
-              )
             ]
           ),
           actions: [
@@ -193,22 +241,25 @@ class _HomePageState extends State<HomePage> {
               child: const Text('Annulla'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 final String taskName = nameController.text;
                 final String descr = descrController.text;
+                int idNotifica = Random().nextInt(1000000) + 1; //genera identificatore casuale per la notifica
                 if (taskName.isNotEmpty) {
                   setState(() {
-                    TileData nuova = TileData(taskNameData: taskName, taskCompletedData: false, descrData: descr, taskDateData: selectedDate, notifSoundData: "test", notifActiveData: notifActive);
-                    db.toDoListOgg.add(nuova);
+                    TileData nuova = TileData(taskNameData: taskName, taskCompletedData: false, descrData: descr, taskDateData: selectedDate, idNotifify: idNotifica, notifSoundData: "test", notifActiveData: notifActive);
+                    ToDoDatabase.toDoListOgg.add(nuova);
                     debugPrint (nuova.toString());
-                    debugPrint("\nelementi ${db.toDoListOgg.length}");
+                    debugPrint("\nelementi ${ToDoDatabase.toDoListOgg.length}");
                     db.updateData();
                   });
-                  Navigator.pop(context);
-                  selectedDate =DateTime.now();
+                taskToday(); //aggiorni il numero di task di oggi
+                NotificationUtilities.creaNotifica(nome: taskName, descrizione: HomePage.abbreviaStringa(descr, 100), quando: selectedDate, idNotif: idNotifica);  //crea notifica associata
+                Navigator.pop(context);
+                selectedDate =DateTime.now();
                 }
               },
-              style: TextButton.styleFrom(foregroundColor: Colors.blue[700]),
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFF1976D2)),
               child: const Text('Aggiungi'),
             )
           ]
@@ -223,26 +274,28 @@ class _HomePageState extends State<HomePage> {
       onLongPress: onLongPressDetected,
       child: Scaffold(
         appBar: AppBar(
-          title: Row(
+          title: const Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('TooDy ● Il tuo promemoria tascabile', style: TextStyle(fontSize: 20, color: Colors.blue[700]))
+              Text('TooDy', style: TextStyle(fontSize: 20, color: Color(0xFF1976D2)))
             ],
           ),
-          actions: [
-             IconButton( //bottone setting
+
+  
+          /*actions: [
+            IconButton( //bottone setting
                 iconSize: 30,
-                icon: const Icon(Icons.settings),
+                icon: const Icon(Icons.account_circle), //per icone https://fonts.google.com/icons?icon.platform=flutter
                 onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const SettingsPage()));
+                     Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const AuthPage()));
                 },
                 color: Colors.blue[700],
               )
-          ]
+          ]*/
         ),
-        backgroundColor: Colors.yellow[200], //colore background principale
-        body: db.toDoListOgg.isEmpty
+        backgroundColor: const Color(0xFFFFF59D), //colore background principale
+        body: ToDoDatabase.toDoListOgg.isEmpty
             ? const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -254,17 +307,11 @@ class _HomePageState extends State<HomePage> {
                 )
               )
             : ListView.builder(
-                itemCount: db.toDoListOgg.length,
+                itemCount: ToDoDatabase.toDoListOgg.length,
                 itemBuilder: (context, index) {
                   return ToDoTile(
-                    taskName: db.toDoListOgg[index].taskNameData,
-                    taskCompleted: db.toDoListOgg[index].taskCompletedData,
-                    taskDate: db.toDoListOgg[index].taskDateData,
+                    index: index,
                     onChanged: (value) => checkboxTask(value, index),
-                    descr: db.toDoListOgg[index].descrData,
-                    notifActive: db.toDoListOgg[index].notifActiveData,
-                    notifSound: db.toDoListOgg[index].notifSoundData,
-                    onChanged1: (value) => checkboxNotif(value, index),
                   );
                 }
               )
@@ -272,3 +319,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+

@@ -4,14 +4,10 @@ import 'package:toody/utilities/todo_database.dart';
 import 'pages/home_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
   await Hive.initFlutter();
   Hive.registerAdapter(TileDataAdapter());  //per ogni tipo prima di usare Hive devi registrare il suo adattatore
   await Hive.openBox('mybox');
@@ -21,6 +17,30 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
   ]);
+
+
+  await AwesomeNotifications().initialize(
+    null, [
+      NotificationChannel(
+        channelGroupKey: "basic_channel_group",
+        channelKey: "basic_channel",
+        channelName: "basic notification",
+        channelDescription: "basic notification channel"
+      )
+    ],
+    channelGroups: [
+      NotificationChannelGroup(
+        channelGroupKey: "basic_channel_group",
+        channelGroupName: "basic group")
+    ]
+  );
+  bool isAllowToSendNotif = await AwesomeNotifications().isNotificationAllowed(); //verifica se ha i permessi per le notifiche
+  debugPrint('notifPermesso: $isAllowToSendNotif');
+
+  if(!isAllowToSendNotif){
+    AwesomeNotifications().requestPermissionToSendNotifications();
+  }
+
   runApp(const MyApp());
 }
 

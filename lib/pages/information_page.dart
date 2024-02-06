@@ -1,44 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:shake/shake.dart';
+import 'package:vibration/vibration.dart';
+import 'package:toody/utilities/todo_database.dart';
+import 'package:toody/utilities/todo_tile_horizontal.dart';
+import 'package:toody/utilities/physics_scroll.dart';
+
 
 //Da risolvere bug checkbox
+// ignore: must_be_immutable
 class InformationPage extends StatefulWidget {
-  final String taskName;
-  final String descr;
-  bool taskCompleted;
+  int index; //L'indice dell'elemento di cui si stanno visionando i dettagli
   final Function(bool?)? onChanged;
-  final DateTime? taskDate;
-  bool notifActive;
-  final String notifSound;
-  final Function(bool?)? onChanged1;
+  int taskDay; //numero di task del giorno corrente che ci sono
 
   InformationPage({
     Key? key,
-    required this.taskName,
-    required this.taskCompleted,
+    required this.index,
     required this.onChanged,
-    this.taskDate,
-    required this.descr,
-    required this.notifActive,
-    required this.notifSound,
-    required this.onChanged1,
+    required this.taskDay
     }) : super(key: key);
 
   @override
-  _InformationPageState createState() => _InformationPageState(taskName, taskCompleted, onChanged, taskDate, descr, notifActive, notifSound, onChanged1);
+  // ignore: library_private_types_in_public_api, no_logic_in_create_state
+  _InformationPageState createState() => _InformationPageState(index, onChanged, taskDay);
   }
 
 class _InformationPageState extends State<InformationPage> {
-  String taskName;
-  String descr;
-  bool taskCompleted;
+  int index;
   Function(bool?)? onChanged;
-  DateTime? taskDate;
-  bool notifActive;
-  String notifSound;
-  Function(bool?)? onChanged1;
-  _InformationPageState(this.taskName, this.taskCompleted, this.onChanged, this.taskDate, this.descr, this.notifActive, this.notifSound, this.onChanged1);
+  int taskDay;
+  _InformationPageState(this.index, this.onChanged, this.taskDay);
+
+  final ScrollController _controller = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    ShakeDetector.autoStart(
+      onPhoneShake: () {
+        setState(() {
+            ScaffoldMessenger.of(context).showSnackBar( //appare snackbar con quante task di oggi ci sono
+               const SnackBar(
+                content: Text('Attività svolta', style: TextStyle(color: Colors.white)),
+                backgroundColor: Color.fromRGBO(25, 118, 210, 1)
+                )
+              );
+            Vibration.vibrate(pattern: [200, 300, 400], intensities: [200, 0, 100]); //vibra
+          
+        });
+        ToDoDatabase.toDoListOgg[index].taskCompletedData=true;
+
+        //index=(_controller.offset/MediaQuery.of(context).size.width).round();
+        //print(index);
+        //setState(() {
+        //  ToDoDatabase.toDoListOgg[index].taskCompletedData=true;
+        //});
+        
+        Navigator.pop(context); //torni alla home
+      },
+      minimumShakeCount: 1,
+      shakeSlopTimeMS: 500,
+      shakeCountResetTime: 3000,
+      shakeThresholdGravity: 1.7,
+    );
+    super.initState();
+  }
   
+
+  /*
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,5 +137,54 @@ class _InformationPageState extends State<InformationPage> {
         )
       )
     );
+  }*/
+  void checkboxTask(bool? value, int index) {
+    setState(() {
+      ToDoDatabase.toDoListOgg[index].taskCompletedData = value!;
+      ToDoDatabase().updateData();
+    });
   }
+
+@override
+  Widget build(BuildContext context) {
+    //Permette di scorrere all'elemento selezionato
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.animateTo(
+        _controller.offset + MediaQuery.of(context).size.width*index,
+        duration: const Duration(seconds: 2),
+        curve: Curves.fastOutSlowIn,
+      );
+    });
+    return Scaffold(
+        backgroundColor: Colors.yellow[200], // Sfondo giallo
+        body: Stack(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.70,
+              width: MediaQuery.of(context).size.width,
+              child: ListView.builder(
+              controller: _controller,
+              physics: PagingScrollPhysics(itemDimension: MediaQuery.of(context).size.width),
+              itemCount: ToDoDatabase.toDoListOgg.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  return ToDoTileHorizontal(
+                    index: index,
+                    onChanged: (value) => checkboxTask(value, index),
+                  );
+                }
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft, //in basso a sinistra
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20.0, left: 10), //margini da sinistra e dal fondo
+                child: Text('Hai ancora $taskDay task oggi', style: const TextStyle(color: Colors.blue, fontSize: 18.0))
+                ),
+            ),
+          ]
+        ),
+      );
+  }
+
 }
