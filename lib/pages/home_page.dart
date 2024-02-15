@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'dart:math';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +24,7 @@ class HomePage extends StatefulWidget {
   static int monthTaskToDo = 0; //numero di task da fare del mese
   static late ShakeDetector detector;
   static bool signal=true;
-  static late OverlayEntry tutorialoverlay;
+  //static late OverlayEntry tutorialoverlay;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -196,11 +194,11 @@ class _HomePageState extends State<HomePage> {
             Vibration.vibrate(pattern: [200, 300, 400], intensities: [200, 0, 100]);
           }
         });
-        if (overlayTutorial.tutorial_mode) {
+        /*if (overlayTutorial.tutorial_mode) {
           overlayTutorial.removeTutorial(HomePage.tutorialoverlay);
           HomePage.tutorialoverlay=overlayTutorial.showTutorial(context, "Clicca sul titolo di una attività", MediaQuery.of(context).size.height * 0.20, 0);
           _HomePageRefresh();
-        }
+        }*/
         }
       },
       minimumShakeCount: 1,
@@ -264,7 +262,7 @@ class _HomePageState extends State<HomePage> {
   }
   
 //Funzione necessaria per aggiornare la pagina
-  void _HomePageRefresh() {
+  void homePageRefresh() {
       setState(() {
     });
   }
@@ -374,11 +372,11 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   selectedDate =DateTime.now();
                 }
-                if (overlayTutorial.tutorial_mode) {
+               /* if (overlayTutorial.tutorial_mode) {
                   overlayTutorial.removeTutorial(HomePage.tutorialoverlay);
                   HomePage.tutorialoverlay=overlayTutorial.showTutorial(context, "Scuoti per cancellare le attività svolte", MediaQuery.of(context).size.height * 0.20, 0);
                   _HomePageRefresh();
-                }
+                }*/
               },
               style: TextButton.styleFrom(foregroundColor: ColorVar.principale),
               child: const Text('Aggiungi'),
@@ -408,12 +406,12 @@ void Function()? tutorial() {
 
   @override
   Widget build(BuildContext context) {
-    if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+    /*if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
       overlayTutorial.tutorial_message_active=true;
       Future.delayed(Duration.zero,(){
         HomePage.tutorialoverlay=overlayTutorial.showTutorial(context, "Crea attività tenendo premuto", MediaQuery.of(context).size.height * 0.20, 0);
       });
-    }
+    }*/
     return GestureDetector(
       onLongPress: tutorial(),
       child: Scaffold(
@@ -441,10 +439,11 @@ void Function()? tutorial() {
                 icon: const Icon(Icons.login), //per icone https://fonts.google.com/icons?icon.platform=flutter
                 onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => LoginPage(HomePageRefresh: _HomePageRefresh))).then((_) async {
+                      MaterialPageRoute(builder: (context) => LoginPage(homePageRefresh: homePageRefresh))).then((_) async {
                         await db.loadData();
                         await db.updateData();
-                        _HomePageRefresh();
+                        HomePage.countTask();
+                        homePageRefresh();
                       });
                 },
                 color: ColorVar.principale,

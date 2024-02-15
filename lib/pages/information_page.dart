@@ -1,5 +1,4 @@
 // ignore_for_file: must_be_immutable, no_logic_in_create_state, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:shake/shake.dart';
 import 'package:toody/pages/stats_page.dart';
@@ -9,14 +8,13 @@ import 'package:toody/utilities/todo_database.dart';
 import 'package:toody/utilities/todo_tile_horizontal.dart';
 import 'package:toody/utilities/physics_scroll.dart';
 import 'package:toody/pages/home_page.dart';
-import 'package:toody/utilities/overlay.dart';
 
 //Da risolvere bug checkbox
 class InformationPage extends StatefulWidget {
   int index; //L'indice dell'elemento di cui si stanno visionando i dettagli
   final Function(bool?)? onChanged;
   static late ShakeDetector detector;
-  static late OverlayEntry tutorialoverlay;
+  //static late OverlayEntry tutorialoverlay;
 
   InformationPage({
     Key? key,
@@ -79,12 +77,12 @@ class _InformationPageState extends State<InformationPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+    /*if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
       overlayTutorial.tutorial_message_active=true;
       Future.delayed(Duration.zero,(){
         InformationPage.tutorialoverlay=overlayTutorial.showTutorial(context, "Puoi scorrere a destra e sinistra clicca sulla descrizione per modificare", MediaQuery.of(context).size.height * 0.20, 0);
       });
-    }
+    }*/
     //Permette di scorrere all'elemento selezionato
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _controller.animateTo(MediaQuery.of(context).size.width*index,
@@ -119,7 +117,7 @@ class _InformationPageState extends State<InformationPage> {
               padding: const EdgeInsets.only(bottom: 20.0, left: 10, right: 10), //margini da sinistra e dal fondo
               child: ElevatedButton(
                 onPressed: () {
-                  overlayTutorial.tutorial_message_active=false;
+                  //overlayTutorial.tutorial_message_active=false;
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const StatsPage()) //bottone rimanda a pagina stats
                   );

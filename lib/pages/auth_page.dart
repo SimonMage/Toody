@@ -24,7 +24,7 @@ class AuthPage extends StatelessWidget {
           }
           //L'utente non ha eseguito l'accesso
           else {
-            return LoginPage(HomePageRefresh: HomePageRefresh);
+            return LoginPage(homePageRefresh: HomePageRefresh);
           }
         },
       ),
