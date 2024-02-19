@@ -4,8 +4,6 @@ import 'package:toody/pages/home_page.dart';
 import 'package:toody/utilities/colors_var.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:toody/pages/edit_page.dart';
-import 'package:toody/utilities/overlay.dart';
-import 'package:toody/pages/information_page.dart';
 
 class ToDoTileHorizontal extends StatelessWidget {
   final int index;
@@ -51,13 +49,13 @@ class ToDoTileHorizontal extends StatelessWidget {
                       icon: const Icon(Icons.edit),
                       alignment: Alignment.bottomLeft,
                       onPressed: () {
-                        overlayTutorial.removeTutorial(InformationPage.tutorialoverlay);
-                        overlayTutorial.tutorial_message_active=false;
+                        //overlayTutorial.removeTutorial(InformationPage.tutorialoverlay);
+                        //overlayTutorial.tutorial_message_active=false;
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditPage(index: index, onChanged: onChanged, taskDate: ToDoDatabase.toDoListOgg[index].taskDateData, refreshDataInformationPage: refreshDataInformationPage)))
                         .then((_) async {
-                          if (overlayTutorial.tutorial_mode) {
+                          /*if (overlayTutorial.tutorial_mode) {
                             InformationPage.tutorialoverlay=overlayTutorial.showTutorial(context, "Clicca sul bottone blue in fondo", MediaQuery.of(context).size.height * 0.20, 0);
-                          }
+                          }*/
                         }
                       );
                       },

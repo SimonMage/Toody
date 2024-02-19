@@ -1,18 +1,16 @@
 // ignore_for_file: must_be_immutable, library_private_types_in_public_api, no_logic_in_create_state, unused_local_variable, non_constant_identifier_names, unused_element
-
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:toody/pages/home_page.dart';
 import 'package:toody/utilities/colors_var.dart';
 import 'package:toody/utilities/todo_database.dart';
-import 'package:toody/utilities/overlay.dart';
 
 class EditPage extends StatefulWidget {
   int index; //L'indice dell'elemento di cui si stanno visionando i dettagli
   final Function(bool?)? onChanged;
   final DateTime taskDate;
   final Function() refreshDataInformationPage;
-  static late OverlayEntry tutorialoverlay;
+  //static late OverlayEntry tutorialoverlay;
   
 
   EditPage({
@@ -54,12 +52,12 @@ class _EditPageState extends State<EditPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+    /*if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
       overlayTutorial.tutorial_message_active=true;
       Future.delayed(Duration.zero,(){
           EditPage.tutorialoverlay=overlayTutorial.showTutorial(context, "Modifica l'attività e premi salva", MediaQuery.of(context).size.height * 0.20, 0);
       });
-    }
+    }*/
     return Scaffold(
       backgroundColor: ColorVar.background,
       resizeToAvoidBottomInset: false,
@@ -137,7 +135,7 @@ class _EditPageState extends State<EditPage> {
                           ToDoDatabase().updateData();
                           HomePage.countTask();
                           refreshDataInformationPage();
-                          overlayTutorial.removeTutorial(EditPage.tutorialoverlay);
+                         // overlayTutorial.removeTutorial(EditPage.tutorialoverlay);
                           Navigator.pop(context);
                         }
                       ),

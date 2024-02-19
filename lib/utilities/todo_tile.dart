@@ -4,7 +4,6 @@ import 'package:toody/pages/home_page.dart';
 import 'package:toody/pages/information_page.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:toody/utilities/colors_var.dart';
-import 'package:toody/utilities/overlay.dart';
 
 class ToDoTile extends StatelessWidget {
   final int index;
@@ -54,8 +53,8 @@ class ToDoTile extends StatelessWidget {
                   TextButton(
                     onPressed: () async {
                       HomePage.signal=false;
-                      overlayTutorial.removeTutorial(HomePage.tutorialoverlay);
-                      overlayTutorial.tutorial_message_active=false;
+                      //overlayTutorial.removeTutorial(HomePage.tutorialoverlay);
+                     // overlayTutorial.tutorial_message_active=false;
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => InformationPage(
                           index: index,

@@ -1,32 +1,76 @@
-// ignore_for_file: non_constant_identifier_names, no_leading_underscores_for_local_identifiers, unused_local_variable
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:toody/utilities/colors_var.dart';
-
-//test
 import 'package:toody/utilities/todo_database.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({
+class LoginPage extends StatefulWidget {
+  const LoginPage({
     Key? key,
-    required this.HomePageRefresh,
+    required this.homePageRefresh,
   }) : super(key: key);
-  final Function() HomePageRefresh;
+  final Function() homePageRefresh;
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool _isLoadingSignIn = false;
+  bool _isLoadingSignUp = false;
+
 
   signIn(context) async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: emailController.text,
-      password: passwordController.text,
-    );
-    Navigator.pop(context);
+    
+     setState(() {
+    _isLoadingSignIn = true;
+  });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      final snackbar = SnackBar(
+        duration: const Duration(seconds: 2),
+        backgroundColor: ColorVar.principale,
+        showCloseIcon: true,
+        margin: const EdgeInsets.only(bottom: 10, right: 5, left: 5),
+        behavior: SnackBarBehavior.floating,
+        closeIconColor: ColorVar.taskBasic,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10) ),
+        content: Text("Log in effettuato con la mail ${emailController.text}", style: TextStyle(color: ColorVar.textSuPrincipale))
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      final snackbar = SnackBar(
+        duration: const Duration(seconds: 2),
+        backgroundColor: ColorVar.principale,
+        showCloseIcon: true,
+        margin: const EdgeInsets.only(bottom: 10, right: 5, left: 5),
+        behavior: SnackBarBehavior.floating,
+        closeIconColor: ColorVar.taskBasic,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10) ),
+        content: Text(errorDescr(e), style: TextStyle(color: ColorVar.textSuPrincipale))
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackbar); 
+    }
+
+     setState(() {
+    _isLoadingSignIn = false;
+  });
   }
 
  signUp(context) async {
 
+  setState(() {
+    _isLoadingSignUp = true;
+  });
+
+  try {
     await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: emailController.text,
       password: passwordController.text,
@@ -35,12 +79,64 @@ class LoginPage extends StatelessWidget {
     final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
     final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
     final String currentUserId = _firebaseAuth.currentUser!.uid;
+
+    final snackbar = SnackBar(
+        duration: const Duration(seconds: 2),
+        backgroundColor: ColorVar.principale,
+        showCloseIcon: true,
+        margin: const EdgeInsets.only(bottom: 10, right: 5, left: 5),
+        behavior: SnackBarBehavior.floating,
+        closeIconColor: ColorVar.taskBasic,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10) ),
+        content: Text("Registrazione effettuata con la mail ${emailController.text}", style: TextStyle(color: ColorVar.textSuPrincipale))
+      );
+    ScaffoldMessenger.of(context).showSnackBar(snackbar);
     ToDoDatabase().updateData();
     Navigator.pop(context);
+         
+    } on FirebaseAuthException catch (e) {
+      final snackbar = SnackBar(
+        duration: const Duration(seconds: 2),
+        backgroundColor: ColorVar.principale,
+        showCloseIcon: true,
+        margin: const EdgeInsets.only(bottom: 10, right: 5, left: 5),
+        behavior: SnackBarBehavior.floating,
+        closeIconColor: ColorVar.taskBasic,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10) ),
+        content: Text(errorDescr(e), style: TextStyle(color: ColorVar.textSuPrincipale))
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+    }
+
+     setState(() {
+    _isLoadingSignUp = false;
+  });
+
+  }
+
+   String errorDescr (FirebaseAuthException exception){
+    debugPrint (exception.toString());
+    switch (exception.code) {
+      case "email-already-in-use":
+        return "L'email è già stata usata per un'altro account";
+      case "invalid-email":
+        return "L'email inserita non è valida";
+      case "user-disabled":
+        return "L'utente associato a questa email è disabilitato";
+      case "weak-password":
+        return "La password usata è troppo semplice (almeno 6 caratteri)";
+      case "user-not-found":
+        return "Non esiste un account con tale mail";
+      case "wrong-password":
+        return "La password è errata per la mail data";
+      case "invalid-credential":
+        return "Le credenziali messe sono errate o scadute";
+      default:
+        return "Errore di autenticazione";
+    }
   }
 
  //impaginazione vecchia funzionante 100%
- //@override
   Widget buildAlternativa(BuildContext context) {
     return Scaffold(
           body: Container(
@@ -110,8 +206,26 @@ class LoginPage extends StatelessWidget {
                           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.principale)))
                       ),
                       const SizedBox(height: 20), //spazio tra textfield password e bottone accedi
-                      TextButton(onPressed: () => signIn(context), child: Text("Accedi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: ColorVar.principale))),
-                      TextButton(onPressed: () => signUp(context), child: Text("Registrati", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: ColorVar.principale))),
+                       TextButton(
+                        onPressed: () => signIn(context),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Text("Accedi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: _isLoadingSignIn ? ColorVar.taskBasic : ColorVar.principale)),
+                            if (_isLoadingSignIn) CircularProgressIndicator(backgroundColor: ColorVar.textSuPrincipale, color: ColorVar.principale )
+                          ]
+                        )
+                      ),
+                      TextButton(
+                        onPressed: () => signUp(context),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [ 
+                            Text("Registrati", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: _isLoadingSignUp ? ColorVar.taskBasic : ColorVar.principale)),
+                            if (_isLoadingSignUp) CircularProgressIndicator(backgroundColor: ColorVar.textSuPrincipale, color: ColorVar.principale)
+                          ]  
+                        )
+                      ),
                       const SizedBox(height: 10)
                     ]
                   )
@@ -125,6 +239,4 @@ class LoginPage extends StatelessWidget {
       )
     );
   }
-
-
 }

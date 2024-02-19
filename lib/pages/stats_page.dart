@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:toody/pages/home_page.dart';
 import 'package:toody/utilities/colors_var.dart';
-import 'package:toody/utilities/overlay.dart';
-import 'package:toody/utilities/todo_database.dart';
 
 //Da risolvere bug checkbox
 class StatsPage extends StatelessWidget {
   const StatsPage({super.key});
-  static late OverlayEntry tutorialoverlay;
+  //static late OverlayEntry tutorialoverlay;
 
   
   //impaginazione alternativa@override
@@ -59,7 +57,7 @@ class StatsPage extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+    /*if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
       overlayTutorial.tutorial_message_active=true;
       Future.delayed(Duration.zero,(){
         StatsPage.tutorialoverlay=overlayTutorial.showTutorial(context, "Qui puoi vedere le statistiche, in 10 secondi tornerai automaticamente alla modalità utente", MediaQuery.of(context).size.height * 0.20, 0);
@@ -72,7 +70,7 @@ class StatsPage extends StatelessWidget {
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomePage()), (route) => false);
         });
       });
-    }
+    }*/
     return Scaffold(
       backgroundColor: ColorVar.background, // Sfondo giallo
       body: Padding(
