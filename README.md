@@ -8,7 +8,7 @@ L'applicazione dei tuoi sogni.
 - Statistiche sulle Attività
 - Nuovo flow nel creare o rimuovere attività moderno e unico
 
-# TooDy il tuo promemoria tascabile.
+# TooDy il tuo promemoria tascabile
 
 Applicazione realizzata da:
 - Simone Infantino
