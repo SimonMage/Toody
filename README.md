@@ -1,16 +1,16 @@
-# todolist
+# TooDy
+L'applicazione dei tuoi sogni.
 
-A new Flutter project.
+Promemoria facili da creare
+No Pubblicità
+Tutorial Interattivo
+Animazioni e grafiche moderne
+Statistiche sulle Attività
+Nuovo flow nel creare o rimuovere attività moderno e unico
+TooDy il tuo promemoria tascabile.
 
-## Getting Started
+Applicazione realizzata da:
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Simone Infantino
+Riccardo Cacciamani
+Pietro Barone
