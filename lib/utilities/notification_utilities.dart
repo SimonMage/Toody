@@ -1,5 +1,5 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/material.dart';
+import 'package:toody/utilities/colors_var.dart';
 
 //per info sulla personalizzazione della notifica sui vari attributi da poter modificare
 // https://pub.dev/packages/awesome_notifications#-notification-structures
@@ -20,10 +20,10 @@ class NotificationUtilities {
         wakeUpScreen: true, //se notifica riattiva lo schermo
         autoDismissible: false, //indica se eliminare automaticamente la notifica quando l'utente la tocca
         fullScreenIntent: true, //mostrare le notifiche in popup anche se l'utente sta utilizzando un'altra app.
-        backgroundColor: Colors.blue,
-        color: Colors.black, //text color della notifica
+        backgroundColor: ColorVar.principale,
+        color: ColorVar.textBasic, //text color della notifica
       ),
-      actionButtons: [NotificationActionButton(key: "Close", label: "Chiudi memo", autoDismissible: true)],
+      actionButtons: [NotificationActionButton(key: "Close", label: "Apri TooDy", autoDismissible: true)],
       schedule: NotificationCalendar(
         minute: quando.minute,
         hour: quando.hour,

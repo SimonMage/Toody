@@ -4,7 +4,11 @@ import 'package:toody/pages/home_page.dart';
 import 'package:toody/pages/login_page.dart';
 
 class AuthPage extends StatelessWidget {
-  const AuthPage({super.key});
+  const AuthPage({
+    Key? key,
+    required this.homePageRefresh,
+  }) : super(key: key);
+  final Function() homePageRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +22,10 @@ class AuthPage extends StatelessWidget {
           }
           //L'utente non ha eseguito l'accesso
           else {
-            return LoginPage();
+            return LoginPage(homePageRefresh: homePageRefresh);
           }
-        },
-      ),
+        }
+      )
     );
   }
 }
