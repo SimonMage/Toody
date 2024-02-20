@@ -4,6 +4,7 @@ import 'package:toody/pages/home_page.dart';
 import 'package:toody/pages/information_page.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:toody/utilities/colors_var.dart';
+import 'package:toody/utilities/overlay.dart';
 
 class ToDoTile extends StatelessWidget {
   final int index;
@@ -51,22 +52,42 @@ class ToDoTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
-                    onPressed: () async {
-                      HomePage.signal=false;
-                      //overlayTutorial.removeTutorial(HomePage.tutorialoverlay);
-                     // overlayTutorial.tutorial_message_active=false;
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => InformationPage(
-                          index: index,
-                          onChanged: onChanged) //crea l information page con il numero di task del giorno
-                      )).then((_) async {
-                        HomePage.signal=true;
-                        loadDataHomePage();
+                    onPressed: () {
+                      if (overlayTutorial.step==2 || !overlayTutorial.tutorial_mode) {
+                        //Disattiva il listening della pagina home
+                        HomePage.detector.stopListening();
+
+                        //Attiva il detector della pagina information
+                        //InformationPage.detector.startListening();
+
+                        if (overlayTutorial.tutorial_mode) {
+                          overlayTutorial.removeTutorial(overlayTutorial.overlay);
+                          overlayTutorial.tutorial_message_active=false;
+                          overlayTutorial.step+=1;
+                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => InformationPage(
+                            index: index,
+                            onChanged: onChanged)), (route) => false);
                         }
-                      );
+                        else {
+                          Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => InformationPage(
+                            index: index,
+                            onChanged: onChanged) //crea l information page con il numero di task del giorno
+                          )).then((_) {
+                            //Disattiva il detector della pagina information
+                            InformationPage.detector.stopListening();
+                            
+                            //Riattiva il detector della pagina home quando l'utente torna indietro
+                            HomePage.detector.startListening();
+                            loadDataHomePage();
+                            }
+                          );
+                        }
+                        
+                      }
                     },
                     style: const ButtonStyle(alignment: Alignment.centerLeft,padding: MaterialStatePropertyAll(EdgeInsets.all(0))), //spazio titolo dalla checkbox
-                    child: Text(ToDoDatabase.toDoListOgg[index].taskNameData, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: ColorVar.principale))
+                    child: Text(ToDoDatabase.toDoListOgg[index].taskNameData, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18.0, color: ColorVar.textSuPrincipale))
                   ),
                   const SizedBox(height: 0), //spazio tra titolo e descrizione
                   Text(HomePage.primaRiga(HomePage.abbreviaStringa(ToDoDatabase.toDoListOgg[index].descrData, 20)), style: TextStyle(fontSize: 14.0, color: ColorVar.textBasic)) //descrizione di cui visualizzi solo la prima riga
@@ -101,7 +122,7 @@ class ToDoTile extends StatelessWidget {
             )
           ]
         )
-    )
-  );
- }
+      )
+    );
+  }
 }

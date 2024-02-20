@@ -50,17 +50,34 @@ class TutorialPage extends StatelessWidget {
                 Expanded(child: Text("Le attività di colore verde acqua, sono attività con scadenze odierne" , textAlign: TextAlign.justify, style: TextStyle(color: ColorVar.textBasic, fontSize: 20, fontWeight: FontWeight.w400,)))
               ]
             ),
+            const SizedBox(height: 45),
             Row(
               children: [
-                TextButton(onPressed: () {
-                  ToDoDatabase().tutorialInitialize();
-                  Navigator.pop(context);
-                  overlayTutorial.tutorial_mode=true;
-                  loadDataHomePage();
-                }, child: Text("Tour", style: TextStyle(color: ColorVar.principale)),
-                ),
+                ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorVar.textSuPrincipale, //colore interno bottone
+                        elevation: 10, //ombra bottone
+                        shadowColor: ColorVar.textSuPrincipale, //colore ombra bottone
+                        foregroundColor: Colors.black
+                      ),
+                      icon: const Icon(Icons.help_outline),
+                      label: Padding(
+                        padding: const EdgeInsets.only(top: 5, bottom: 5),
+                        child: Stack(
+                          children: [
+                            Text("Inizia il tour guidato", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0, color: ColorVar.principale)),
+                          ],
+                        ),
+                      ),
+                      onPressed: () {  
+                        ToDoDatabase().tutorialInitialize();
+                        Navigator.pop(context);
+                        overlayTutorial.tutorial_mode=true;
+                        loadDataHomePage();
+                      }
+                    ),
               ],
-            ),
+            )
           ]
         )
       )

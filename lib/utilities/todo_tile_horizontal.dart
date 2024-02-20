@@ -4,6 +4,7 @@ import 'package:toody/pages/home_page.dart';
 import 'package:toody/utilities/colors_var.dart';
 import 'package:toody/utilities/todo_database.dart';
 import 'package:toody/pages/edit_page.dart';
+import 'package:toody/utilities/overlay.dart';
 
 class ToDoTileHorizontal extends StatelessWidget {
   final int index;
@@ -19,7 +20,21 @@ class ToDoTileHorizontal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return GestureDetector(
+      onTap: () {
+                    if (overlayTutorial.step==4 || !overlayTutorial.tutorial_mode) {
+                        if (overlayTutorial.tutorial_mode) {
+                          overlayTutorial.removeTutorial(overlayTutorial.overlay);
+                          overlayTutorial.tutorial_message_active=false;
+                          overlayTutorial.step+=1;
+                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => EditPage(index: index, onChanged: onChanged, taskDate: ToDoDatabase.toDoListOgg[index].taskDateData, refreshDataInformationPage: refreshDataInformationPage)), (route) => false);
+                        }
+                        else {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditPage(index: index, onChanged: onChanged, taskDate: ToDoDatabase.toDoListOgg[index].taskDateData, refreshDataInformationPage: refreshDataInformationPage)));
+                      }
+                    }
+                  },
+      child: Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 55.0), //spazio dal bordo superiore (vertical) e laterali (horizontal)
         child: Material( //wrappare con material per avere ombra di profondita
@@ -42,25 +57,11 @@ class ToDoTileHorizontal extends StatelessWidget {
                   children: [
                     Text(
                       ToDoDatabase.toDoListOgg[index].taskNameData, 
-                        style: TextStyle(fontSize: 35.0, color: ColorVar.principale, fontWeight: FontWeight.w400, decoration: ToDoDatabase.toDoListOgg[index].taskCompletedData ? TextDecoration.lineThrough : TextDecoration.none)
+                        style: TextStyle(fontSize: 35.0, color: ColorVar.textSuPrincipale, fontWeight: FontWeight.w500)
                     ),
-                    IconButton( //bottone edit
-                      iconSize: 20, //grandezza icona
-                      icon: const Icon(Icons.edit),
-                      alignment: Alignment.bottomLeft,
-                      onPressed: () {
-                        //overlayTutorial.removeTutorial(InformationPage.tutorialoverlay);
-                        //overlayTutorial.tutorial_message_active=false;
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditPage(index: index, onChanged: onChanged, taskDate: ToDoDatabase.toDoListOgg[index].taskDateData, refreshDataInformationPage: refreshDataInformationPage)))
-                        .then((_) async {
-                          /*if (overlayTutorial.tutorial_mode) {
-                            InformationPage.tutorialoverlay=overlayTutorial.showTutorial(context, "Clicca sul bottone blue in fondo", MediaQuery.of(context).size.height * 0.20, 0);
-                          }*/
-                        }
-                      );
-                      },
-                      color: ColorVar.principale,
-                    ),
+                    const SizedBox(width: 5),
+                    if (ToDoDatabase.toDoListOgg[index].taskCompletedData)
+                      const Icon(Icons.done, size: 30),
                   ]
                 ),
                 const SizedBox(height: 0), //spazio tra titolo e data/ora
@@ -76,11 +77,12 @@ class ToDoTileHorizontal extends StatelessWidget {
                   ]
                 ),
                 const SizedBox(height: 15), //spazio tra data/ora e descrizione
-                Text(ToDoDatabase.toDoListOgg[index].descrData, style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic))
+                Text(ToDoDatabase.toDoListOgg[index].descrData, style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic, fontWeight: FontWeight.w400))
               ]
             )
           )
         )
+      )
       )
     );        
   }

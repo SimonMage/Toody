@@ -1,31 +1,29 @@
-// ignore_for_file: must_be_immutable, library_private_types_in_public_api, no_logic_in_create_state, unused_local_variable, non_constant_identifier_names, unused_element
+// ignore_for_file: must_be_immutable, library_private_types_in_public_api, no_logic_in_create_state, unused_local_variable 
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:toody/pages/home_page.dart';
+import 'package:toody/pages/information_page.dart';
 import 'package:toody/utilities/colors_var.dart';
 import 'package:toody/utilities/todo_database.dart';
+import 'package:toody/utilities/overlay.dart';
 
 class EditPage extends StatefulWidget {
   int index; //L'indice dell'elemento di cui si stanno visionando i dettagli
   final Function(bool?)? onChanged;
   final DateTime taskDate;
   final Function() refreshDataInformationPage;
-  //static late OverlayEntry tutorialoverlay;
   
-
   EditPage({
     Key? key,
     required this.index,
     required this.onChanged,
     required this.taskDate,
     required this.refreshDataInformationPage,
-    }) : super(key: key);
+  }) : super(key: key);
     
   @override
   _EditPageState createState() => _EditPageState(index, onChanged, taskDate, refreshDataInformationPage);
-
-  
-  }
+}
 
 
 class _EditPageState extends State<EditPage> {
@@ -45,24 +43,24 @@ class _EditPageState extends State<EditPage> {
   }
   
   //Funzione necessaria per aggiornare la pagina
-  void _EditPageRefresh() {
+  void editPageRefresh() {
       setState(() {
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    /*if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+    if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
       overlayTutorial.tutorial_message_active=true;
       Future.delayed(Duration.zero,(){
-          EditPage.tutorialoverlay=overlayTutorial.showTutorial(context, "Modifica l'attività e premi salva", MediaQuery.of(context).size.height * 0.20, 0);
+          overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Modifica l'attività e premi salva", MediaQuery.of(context).size.height * 0.70);
       });
-    }*/
+    }
     return Scaffold(
       backgroundColor: ColorVar.background,
       resizeToAvoidBottomInset: false,
       body: Padding(
-        padding: const EdgeInsets.only(left: 10, right: 10, top: 35), //spazio dal container principale
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 50), //spazio dal container principale
         child: Column(
           children: [
             Material( //material per ombra di profondita
@@ -75,18 +73,22 @@ class _EditPageState extends State<EditPage> {
                   padding: const EdgeInsets.only(left: 10, right: 10, top: 15), //spazio tra background e container principale
                   child: Column(
                     children: [
-                      Text("Modifica task", style: TextStyle(fontSize: 25.0, color: ColorVar.principale, fontWeight: FontWeight.w500)),
+                      Text("Modifica task", style: TextStyle(fontSize: 25.0, color: ColorVar.textSuPrincipale, fontWeight: FontWeight.w500, )),
                       TextField(
+                        autocorrect: true,
+                        cursorRadius: const Radius.circular(30),
                         controller: nameController,
                         maxLength: 15, //limite lunghezza titolo
                         cursorColor: ColorVar.principale,
                         decoration: InputDecoration(
                           labelText: 'Nome',
-                          labelStyle: TextStyle(fontSize:20, color: ColorVar.principale, fontWeight: FontWeight.w400),
+                          labelStyle: TextStyle(fontSize:22, color: ColorVar.principale, fontWeight: FontWeight.w400),
                           enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.textBasic)),
                           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.principale)))
                       ),
                       TextField(
+                        autocorrect: true,
+                        cursorRadius: const Radius.circular(30),
                         controller: descrController,
                         maxLength: 100, //limite lunghezza descrizione
                         cursorColor: ColorVar.principale,
@@ -98,15 +100,16 @@ class _EditPageState extends State<EditPage> {
                         keyboardType: TextInputType.multiline, //appare la tastiera non con invio ma con rimando a capo
                         decoration: InputDecoration(
                           labelText: 'Descrizione',
-                          labelStyle: TextStyle(fontSize:20, color: ColorVar.principale, fontWeight: FontWeight.w400),
+                          labelStyle: TextStyle(fontSize:22, color: ColorVar.principale, fontWeight: FontWeight.w400),
                           enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.textBasic)),
                           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.principale)))
                       ),
                       Row(
                         children: [
-                          const Text('Data e Orario:'),
+                          Text('Data e Orario:', style: TextStyle(fontSize:16, color: ColorVar.principale, fontWeight: FontWeight.w400)),
                           TextButton(
                             onPressed: () async {
+                              HomePage.countTask ();
                               final date = await DatePicker.showDateTimePicker(
                                 locale: LocaleType.it, //italiano
                                 context,
@@ -118,28 +121,49 @@ class _EditPageState extends State<EditPage> {
                                 },
                                 currentTime: selectedDate
                               );
-
                             },
-                            child: Text('Modifica', style: TextStyle(color: ColorVar.principale))
+                            child: Text('Modifica', style: TextStyle(color: ColorVar.textSuPrincipale, fontSize: 16, fontWeight: FontWeight.w500))
                           )
                         ]
                       ),
-                      const SizedBox(height: 10), //spazio tra bottone per salvare e 
-                      TextButton(
-                        style: TextButton.styleFrom(foregroundColor: ColorVar.principale),
-                        child: const Text('Salva le modifiche'),
-                        onPressed: () {
+                      const SizedBox(height: 15),//spazio tra bottone per salvare e 
+                      ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorVar.textSuPrincipale, //colore interno bottone
+                        elevation: 10, //ombra bottone
+                        shadowColor: ColorVar.textSuPrincipale, //colore ombra bottone
+                        foregroundColor: Colors.black
+                      ),
+                      icon: const Icon(Icons.edit),
+                      label: Padding(
+                        padding: const EdgeInsets.only(top: 5, bottom: 5),
+                        child: Stack(
+                          children: [
+                            Text("Salva le modifiche", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0, color: ColorVar.principale)),
+                          ],
+                        ),
+                      ),
+                      onPressed: () {
+                          if (overlayTutorial.step==5 || !overlayTutorial.tutorial_mode) {
                           ToDoDatabase.toDoListOgg[index].taskDateData=selectedDate;
                           ToDoDatabase.toDoListOgg[index].taskNameData=nameController.text;
                           ToDoDatabase.toDoListOgg[index].descrData=descrController.text;
                           ToDoDatabase().updateData();
                           HomePage.countTask();
-                          refreshDataInformationPage();
-                         // overlayTutorial.removeTutorial(EditPage.tutorialoverlay);
-                          Navigator.pop(context);
+                          if (overlayTutorial.tutorial_mode) {
+                            overlayTutorial.removeTutorial(overlayTutorial.overlay);
+                            overlayTutorial.step+=1;
+                            overlayTutorial.tutorial_message_active=false;
+                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => InformationPage(index: index, onChanged: onChanged)), (route) => false);
+                          }
+                          else {
+                            refreshDataInformationPage();
+                            Navigator.pop(context);
+                          }
+                          }
                         }
-                      ),
-                      const SizedBox(height: 10)
+                    ),
+                    const SizedBox(height: 15)
                     ]
                   )
                 )
@@ -152,6 +176,4 @@ class _EditPageState extends State<EditPage> {
       )
     );
   }
-
-  
 }

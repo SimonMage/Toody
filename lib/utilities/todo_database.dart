@@ -74,16 +74,17 @@ class ToDoDatabase {
   //Metodo che carica i dati dal database
   //Database ---> App
   Future<void> loadData() async {
+    debugPrint(overlayTutorial.tutorial_mode.toString());
     if (overlayTutorial.tutorial_mode) {
       toDoListOgg = _myBox.get("Tutorial");
     }
-    else if (_myBox.get("TODO") == Null){
+    else if (_myBox.get("TODO") != Null){
       toDoListOgg = _myBox.get("TODO");
     }
 
     //Se nessuna attività è registrata
-      //Controllo attività su firebase  
-      if (_firebaseAuth.currentUser!=null && toDoListOgg.isEmpty) {
+    //Controllo attività su firebase  
+      if (_firebaseAuth.currentUser!=null && toDoListOgg.isEmpty && !overlayTutorial.tutorial_mode) {
         final String currentUserId = _firebaseAuth.currentUser!.uid;
         debugPrint ("Funziona");
         await _fireStore.collection('users').doc(currentUserId).collection('todo').get().then(

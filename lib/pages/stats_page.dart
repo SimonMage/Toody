@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:toody/pages/home_page.dart';
 import 'package:toody/utilities/colors_var.dart';
+import 'package:toody/utilities/overlay.dart';
+import 'package:toody/utilities/todo_database.dart';
 
 //Da risolvere bug checkbox
 class StatsPage extends StatelessWidget {
@@ -57,20 +59,23 @@ class StatsPage extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    /*if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+    if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
       overlayTutorial.tutorial_message_active=true;
       Future.delayed(Duration.zero,(){
-        StatsPage.tutorialoverlay=overlayTutorial.showTutorial(context, "Qui puoi vedere le statistiche, in 10 secondi tornerai automaticamente alla modalità utente", MediaQuery.of(context).size.height * 0.20, 0);
-        Future.delayed(const Duration(seconds: 10),(){
+        overlayTutorial.timer=true;
+        overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Qui puoi vedere le statistiche, in", MediaQuery.of(context).size.height * 0.80, "secondi tornerai automaticamente alla modalità utente");
+        Future.delayed(const Duration(seconds: 11),(){
+          ToDoDatabase.toDoListOgg = [];
+          ToDoDatabase().loadData();
           overlayTutorial.tutorial_mode=false;
           overlayTutorial.tutorial_message_active=false;
-          overlayTutorial.removeTutorial(StatsPage.tutorialoverlay);
-          //Navigator.popUntil(context, ModalRoute.withName('/'));
-          ToDoDatabase().loadData();
+          overlayTutorial.final_message=true;
+          overlayTutorial.step=0;
+          //Rende l'HomePage l'unica pagina nello stack
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomePage()), (route) => false);
         });
       });
-    }*/
+    }
     return Scaffold(
       backgroundColor: ColorVar.background, // Sfondo giallo
       body: Padding(
@@ -87,12 +92,12 @@ class StatsPage extends StatelessWidget {
                   color: ColorVar.principale, //bordi blu
                   borderRadius: BorderRadius.circular(20.0) //bordi container tondi
                 ),
-                padding: const EdgeInsets.only(left:10.0, top: 5, right: 10.0, bottom: 5), //spazio vuoto tra limite container e contenuto container
+                padding: const EdgeInsets.only(left:15, top: 5, right: 15, bottom: 5), //spazio vuoto tra limite container e contenuto container
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text("Statistiche task", style: TextStyle(fontSize: 30.0, color: ColorVar.textSuPrincipale, fontWeight: FontWeight.w500)),
+                    Text("Statistiche", style: TextStyle(fontSize: 30.0, color: ColorVar.textSuPrincipale, fontWeight: FontWeight.w500)),
                   ]
                 )
               )
@@ -114,19 +119,19 @@ class StatsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text("task del giorno", style: TextStyle(fontSize: 23.0, color: ColorVar.principale, fontWeight: FontWeight.w400)),
-                    Text("task del giorno completate: " '${HomePage.todayTask}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
-                    Text("task del giorno da completare : " '${HomePage.todayTaskToDo}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
+                    Text("Attività del giorno", style: TextStyle(fontSize: 23.0, color: ColorVar.textSuPrincipale, fontWeight: FontWeight.w500)),
+                    Text("Completate ➔ " '${HomePage.todayTask}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
+                    Text("Da completare ➔ " '${HomePage.todayTaskToDo}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
                     const SizedBox(height: 30), //spazio tra task giorno e task settimana
               
-                    Text("task della settimana", style: TextStyle(fontSize: 23.0, color: ColorVar.principale, fontWeight: FontWeight.w400)),
-                    Text("task della settimana completate: " '${HomePage.weekTask}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
-                    Text("task della settimana da completare: " '${HomePage.weekTaskToDo}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
+                    Text("Attività della settimana", style: TextStyle(fontSize: 23.0, color: ColorVar.textSuPrincipale, fontWeight: FontWeight.w500)),
+                    Text("Completate ➔ " '${HomePage.weekTask}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
+                    Text("Da completare ➔ " '${HomePage.weekTaskToDo}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
                     const SizedBox(height: 30), //spazio tra task settimana e task mese
                 
-                    Text("task del mese", style: TextStyle(fontSize: 23.0, color: ColorVar.principale, fontWeight: FontWeight.w400)),
-                    Text("task del mese completate: " '${HomePage.monthTask}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
-                    Text("task del mese da completare: " '${HomePage.monthTaskToDo}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic))
+                    Text("Attività del mese", style: TextStyle(fontSize: 23.0, color: ColorVar.textSuPrincipale, fontWeight: FontWeight.w500)),
+                    Text("Completate ➔ " '${HomePage.monthTask}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic)),
+                    Text("Da completare ➔ " '${HomePage.monthTaskToDo}', style: TextStyle(fontSize: 17.0, color: ColorVar.textBasic))
                   ]
                 )
               )

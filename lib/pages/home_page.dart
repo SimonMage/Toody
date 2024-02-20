@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:toody/pages/login_page.dart';
@@ -23,8 +24,6 @@ class HomePage extends StatefulWidget {
   static int monthTask = 0; //numero di task del mese fatte
   static int monthTaskToDo = 0; //numero di task da fare del mese
   static late ShakeDetector detector;
-  static bool signal=true;
-  //static late OverlayEntry tutorialoverlay;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -172,34 +171,43 @@ class _HomePageState extends State<HomePage> {
     debugPrint("sto settando listern");
     HomePage.detector = ShakeDetector.autoStart(
       onPhoneShake: () {
-        if (HomePage.signal) {
-          setState(() {
-          bool hasCompletedTask = ToDoDatabase.toDoListOgg.any((task) => task.taskCompletedData == true);
-          if (hasCompletedTask) {
-            for (var i = 0; i < ToDoDatabase.toDoListOgg.length; i++) {
-              if (ToDoDatabase.toDoListOgg[i].taskCompletedData== true) {
-                debugPrint("idNotif cancellata ${ToDoDatabase.toDoListOgg[i].idNotifify}");
-                NotificationUtilities.cancellaNotifica(idNotif: ToDoDatabase.toDoListOgg[i].idNotifify); //cancella notifica di quella task
-                ToDoDatabase.toDoListOgg.remove(ToDoDatabase.toDoListOgg[i]);
-                i = i - 1;
+        setState(() {
+          if (overlayTutorial.step==1 || !overlayTutorial.tutorial_mode) {
+            bool hasCompletedTask = ToDoDatabase.toDoListOgg.any((task) => task.taskCompletedData == true);
+            if (hasCompletedTask) {
+              for (var i = 0; i < ToDoDatabase.toDoListOgg.length; i++) {
+                if (ToDoDatabase.toDoListOgg[i].taskCompletedData== true) {
+                  debugPrint("idNotif cancellata ${ToDoDatabase.toDoListOgg[i].idNotifify}");
+                  if (!overlayTutorial.tutorial_mode) {
+                    NotificationUtilities.cancellaNotifica(idNotif: ToDoDatabase.toDoListOgg[i].idNotifify); //cancella notifica di quella task
+                  }
+                  ToDoDatabase.toDoListOgg.remove(ToDoDatabase.toDoListOgg[i]);
+                  i = i - 1;
+                }
+              }
+              db.updateData();
+              HomePage.countTask(); //aggiorni il numero di task di oggi
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  duration: const Duration(seconds: 2),
+                  showCloseIcon: true,
+                  margin: const EdgeInsets.only(bottom: 10, right: 5, left: 5),
+                  behavior: SnackBarBehavior.floating,
+                  closeIconColor: ColorVar.taskBasic,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10) ),
+                  content: Text('Attività svolte cancellate', style: TextStyle(color: ColorVar.textSuPrincipale)),
+                  backgroundColor: ColorVar.principale));
+              //Vibration.vibrate(duration: 1000);
+              Vibration.vibrate(pattern: [200, 300, 400], intensities: [200, 0, 100]);
+              if (overlayTutorial.tutorial_mode) {
+                overlayTutorial.removeTutorial(overlayTutorial.overlay);
+                overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Clicca sul titolo di un'attività per visualizzare le informazioni", MediaQuery.of(context).size.height * 0.70);
+                homePageRefresh();
+                overlayTutorial.step+=1;
               }
             }
-            db.updateData();
-            HomePage.countTask(); //aggiorni il numero di task di oggi
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Attività svolte cancellate', style: TextStyle(color: ColorVar.textSuPrincipale)),
-                backgroundColor: ColorVar.principale));
-            //Vibration.vibrate(duration: 1000);
-            Vibration.vibrate(pattern: [200, 300, 400], intensities: [200, 0, 100]);
           }
         });
-        /*if (overlayTutorial.tutorial_mode) {
-          overlayTutorial.removeTutorial(HomePage.tutorialoverlay);
-          HomePage.tutorialoverlay=overlayTutorial.showTutorial(context, "Clicca sul titolo di una attività", MediaQuery.of(context).size.height * 0.20, 0);
-          _HomePageRefresh();
-        }*/
-        }
       },
       minimumShakeCount: 1,
       shakeSlopTimeMS: 500,
@@ -217,11 +225,13 @@ class _HomePageState extends State<HomePage> {
 
   //funzione per cambiare valore checkbox della task
   void checkboxTask(bool? value, int index) {
-    setState(() {
+    if (!overlayTutorial.tutorial_mode) {
+      setState(() {
       ToDoDatabase.toDoListOgg[index].taskCompletedData = value!;
       db.updateData();
       HomePage.countTask();
     });
+    }
   }
 
   //funzione che modifica la checkbox che aggiorna lei stessa i contatori delle task senza usare la funzione
@@ -270,15 +280,15 @@ class _HomePageState extends State<HomePage> {
   void onLongPressDetected() async {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController descrController = TextEditingController();
-
-    await showDialog(
+    if (overlayTutorial.step==0 || !overlayTutorial.tutorial_mode) {
+      await showDialog(
       context: context,
       builder: (BuildContext context) {
         bool notifActive = true;
         return AlertDialog(
           title: Container(
             color: ColorVar.background,
-            child: Text("Aggiungi una nuova attività", style: TextStyle(color: ColorVar.principale, fontSize: 21))
+            child: Text("Aggiungi una nuova attività", style: TextStyle(color: ColorVar.taskBasic, fontSize: 21, fontWeight: FontWeight.w500))
           ),
           scrollable: true, //alertdialog se non c'entra nello schermo scrollabile
           backgroundColor: ColorVar.background,
@@ -289,17 +299,21 @@ class _HomePageState extends State<HomePage> {
             children: [
               TextField(
                 controller: nameController,
+                autocorrect: true,
+                cursorRadius: const Radius.circular(30),
                 maxLength: 15, //limite lunghezza titolo
                 cursorColor: ColorVar.principale,
                 decoration: InputDecoration(
                   labelText: 'Nome',
-                  labelStyle: TextStyle(color: ColorVar.principale),
+                  labelStyle: TextStyle(color: ColorVar.taskBasic,fontSize: 17 , fontWeight: FontWeight.w500),
                   enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.textBasic)),
                   focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.principale))
                 )
               ),
               TextField(
+                autocorrect: true,
                 controller: descrController,
+                cursorRadius: const Radius.circular(30),
                 maxLength: 100, //limite lunghezza descrizione
                 cursorColor: ColorVar.principale,
                 maxLines: 3,  //massima altezza che prende il textfield
@@ -310,14 +324,14 @@ class _HomePageState extends State<HomePage> {
                 keyboardType: TextInputType.multiline, //appare la tastiera non con invio ma con rimando a capo
                 decoration: InputDecoration(
                   labelText: 'Descrizione',
-                  labelStyle: TextStyle(color: ColorVar.principale),
+                  labelStyle: TextStyle(color: ColorVar.taskBasic,fontSize: 17 , fontWeight: FontWeight.w500),
                   enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.textBasic)),
                   focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: ColorVar.principale))
                 )
               ),
               Row(
                 children: [
-                  const Text('Data e Orario:'),
+                  Text('Data e Orario:', style: TextStyle(fontSize: 14, color: ColorVar.principale, fontWeight: FontWeight.w400)),
                   TextButton(
                     onPressed: () async {
                       final date = await DatePicker.showDateTimePicker(
@@ -340,7 +354,7 @@ class _HomePageState extends State<HomePage> {
                         });
                       }
                     },
-                    child: Text(isDateSelected ? 'Modifica' : 'Modifica', style: TextStyle(color: ColorVar.principale))
+                    child: Text('Modifica', style: TextStyle(color: ColorVar.taskBasic, fontSize: 14, fontWeight: FontWeight.w500))
                   )
                 ]
               )
@@ -352,7 +366,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Annulla'),
+              child: const Text('Annulla', style: TextStyle(color: Colors.red, fontSize: 14 , fontWeight: FontWeight.w500)),
             ),
             TextButton(
               onPressed: () async {
@@ -368,23 +382,27 @@ class _HomePageState extends State<HomePage> {
                     db.updateData();
                   });
                   HomePage.countTask(); //aggiorni il numero di task di oggi
-                  NotificationUtilities.creaNotifica(nome: taskName, descrizione: HomePage.abbreviaStringa(descr, 100), quando: selectedDate, idNotif: idNotifica);  //crea notifica associata
+                  if (!overlayTutorial.tutorial_mode) {
+                    NotificationUtilities.creaNotifica(nome: taskName, descrizione: HomePage.abbreviaStringa(descr, 100), quando: selectedDate, idNotif: idNotifica);  //crea notifica associata
+                  }
                   Navigator.pop(context);
                   selectedDate =DateTime.now();
                 }
-               /* if (overlayTutorial.tutorial_mode) {
-                  overlayTutorial.removeTutorial(HomePage.tutorialoverlay);
-                  HomePage.tutorialoverlay=overlayTutorial.showTutorial(context, "Scuoti per cancellare le attività svolte", MediaQuery.of(context).size.height * 0.20, 0);
-                  _HomePageRefresh();
-                }*/
+               if (overlayTutorial.tutorial_mode) {
+                  overlayTutorial.removeTutorial(overlayTutorial.overlay);
+                  overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Scuoti per cancellare le attività svolte", MediaQuery.of(context).size.height * 0.70);
+                  homePageRefresh();
+                  overlayTutorial.step+=1;
+                }
               },
-              style: TextButton.styleFrom(foregroundColor: ColorVar.principale),
-              child: const Text('Aggiungi'),
+              style: TextButton.styleFrom(foregroundColor: ColorVar.taskBasic),
+              child: Text('Aggiungi', style: TextStyle(color: ColorVar.taskBasic,fontSize: 14 , fontWeight: FontWeight.w500)),
             )
           ]
         );
       }
     );
+    }
   }
 
 /*
@@ -400,44 +418,54 @@ void Function()? tutorial() {
 }
 */
 
-void Function()? tutorial() {
-  return onLongPressDetected;
-}
-
   @override
   Widget build(BuildContext context) {
-    /*if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+    if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
       overlayTutorial.tutorial_message_active=true;
       Future.delayed(Duration.zero,(){
-        HomePage.tutorialoverlay=overlayTutorial.showTutorial(context, "Crea attività tenendo premuto", MediaQuery.of(context).size.height * 0.20, 0);
+        overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Crea attività tenendo premuto", MediaQuery.of(context).size.height * 0.10);
       });
-    }*/
+    }
+    if (overlayTutorial.final_message && !overlayTutorial.tutorial_message_active) {
+      overlayTutorial.tutorial_message_active=true;
+      Future.delayed(Duration.zero,(){
+        overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Bentornato, adesso la modalità tutorial è disattivata", MediaQuery.of(context).size.height * 0.70);
+      });
+      Future.delayed(const Duration(seconds: 7),(){
+        overlayTutorial.removeTutorial(overlayTutorial.overlay);
+        overlayTutorial.final_message=false;
+        overlayTutorial.tutorial_message_active=false;
+      });
+    }
     return GestureDetector(
-      onLongPress: tutorial(),
+      onLongPress: onLongPressDetected,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: ColorVar.taskBasic,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(10))),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('TooDy', style: TextStyle(fontSize: 20, color: ColorVar.principale, fontWeight: FontWeight.w500))
+              Text('TooDy', style: TextStyle(fontSize: 25, color: ColorVar.principale, fontWeight: FontWeight.w500))
             ]
           ),
-          
-  
           actions: [
             IconButton( //bottone setting
                 iconSize: 30,
                 icon: const Icon(Icons.info_outline), //per icone https://fonts.google.com/icons?icon.platform=flutter
                 onPressed: () {
+                  if (!overlayTutorial.tutorial_mode && !overlayTutorial.final_message) {
                      Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => TutorialPage(loadDataHomePage: _loadDataHomePage)));
+                  }
                 },
                 color: ColorVar.principale,
               ),
               IconButton( //bottone setting
                 iconSize: 30,
-                icon: const Icon(Icons.login), //per icone https://fonts.google.com/icons?icon.platform=flutter
+                icon: FirebaseAuth.instance.currentUser!=null ? const Icon(Icons.account_circle_outlined) : const Icon(Icons.login), //per icone https://fonts.google.com/icons?icon.platform=flutter
                 onPressed: () {
+                  if (!overlayTutorial.tutorial_mode) {
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => LoginPage(homePageRefresh: homePageRefresh))).then((_) async {
                         await db.loadData();
@@ -445,21 +473,21 @@ void Function()? tutorial() {
                         HomePage.countTask();
                         homePageRefresh();
                       });
+                  }
                 },
                 color: ColorVar.principale,
-              ),
-
+              )
           ]
         ),
         backgroundColor: ColorVar.background, //colore background principale
         body: ToDoDatabase.toDoListOgg.isEmpty
-            ? const Center(
+            ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('Nessuna attività creata', style: TextStyle(fontSize: 18, color: Colors.grey)),
-                    Text('Tieni premuto per aggiungere una nuova attività', style: TextStyle(fontSize: 14, color: Colors.grey))
+                    Text('Nessuna attività creata', style: TextStyle(fontSize: 18, color: ColorVar.principale)),
+                    Text('Tieni premuto per aggiungere una nuova attività', style: TextStyle(fontSize: 14, color: ColorVar.principale))
                   ]
                 )
               )

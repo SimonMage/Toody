@@ -8,6 +8,9 @@ import 'package:toody/utilities/todo_database.dart';
 import 'package:toody/utilities/todo_tile_horizontal.dart';
 import 'package:toody/utilities/physics_scroll.dart';
 import 'package:toody/pages/home_page.dart';
+import 'package:toody/utilities/notification_utilities.dart';
+
+import 'package:toody/utilities/overlay.dart';
 
 //Da risolvere bug checkbox
 class InformationPage extends StatefulWidget {
@@ -16,11 +19,7 @@ class InformationPage extends StatefulWidget {
   static late ShakeDetector detector;
   //static late OverlayEntry tutorialoverlay;
 
-  InformationPage({
-    Key? key,
-    required this.index,
-    required this.onChanged,
-    }) : super(key: key);
+  InformationPage({ Key? key, required this.index, required this.onChanged}) : super(key: key);
 
   @override
   _InformationPageState createState() => _InformationPageState(index, onChanged);
@@ -30,35 +29,53 @@ class _InformationPageState extends State<InformationPage> {
   int index;
   Function(bool?)? onChanged;
   _InformationPageState(this.index, this.onChanged);
-
   final ScrollController _controller = ScrollController();
 
   @override
   void initState() {
-    super.initState();
     InformationPage.detector = ShakeDetector.autoStart(
       onPhoneShake: () {
-        if (!HomePage.signal) {
-          setState(() {
-          ScaffoldMessenger.of(context).showSnackBar( //appare snackbar con quante task di oggi ci sono
+        setState(() {
+          if ((overlayTutorial.step==3 || !overlayTutorial.tutorial_mode) && !ToDoDatabase.toDoListOgg[index].taskCompletedData) {
+            ScaffoldMessenger.of(context).showSnackBar( //appare snackbar con quante task di oggi ci sono
             SnackBar(
               content: Text('Attività svolta', style: TextStyle(color: ColorVar.textSuPrincipale)),
+              duration: const Duration(seconds: 2),
+              showCloseIcon: true,
+              margin: const EdgeInsets.only(bottom: 10, right: 5, left: 5),
+              behavior: SnackBarBehavior.floating,
+              closeIconColor: ColorVar.taskBasic,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10) ),
               backgroundColor: ColorVar.principale
             )
           );
           Vibration.vibrate(pattern: [200, 300, 400], intensities: [200, 0, 100]); //vibra
-        });
-        ToDoDatabase.toDoListOgg[index].taskCompletedData=true;
-        ToDoDatabase().updateData();
-        HomePage.countTask();  
-        Navigator.pop(context); //torni alla home
+          ToDoDatabase.toDoListOgg[index].taskCompletedData=true;
+        if (!overlayTutorial.tutorial_mode) {
+                    NotificationUtilities.cancellaNotifica(idNotif: ToDoDatabase.toDoListOgg[index].idNotifify); //cancella notifica di quella task
         }
+        ToDoDatabase().updateData();
+        HomePage.countTask(); 
+        if (overlayTutorial.tutorial_mode) {
+          overlayTutorial.removeTutorial(overlayTutorial.overlay);
+          overlayTutorial.step+=1;
+          Future.delayed(Duration.zero,(){
+            overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Puoi scorrere a destra e sinistra, clicca sul riquadro", MediaQuery.of(context).size.height * 0.70);
+          });
+        }
+        }
+        });
       },
       minimumShakeCount: 1,
       shakeSlopTimeMS: 500,
       shakeCountResetTime: 3000,
       shakeThresholdGravity: 1.7,
     );
+     _controller.addListener(() {
+      debugPrint(((_controller.position.pixels)/(MediaQuery.of(context).size.width)).toString());
+      index=((_controller.position.pixels)/(MediaQuery.of(context).size.width)).ceil();
+      debugPrint((((_controller.position.pixels)/(MediaQuery.of(context).size.width)).ceil()).toString());
+      });
     super.initState();
   }
   
@@ -77,12 +94,18 @@ class _InformationPageState extends State<InformationPage> {
 
   @override
   Widget build(BuildContext context) {
-    /*if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+    if (overlayTutorial.tutorial_mode && overlayTutorial.step==6 && !overlayTutorial.tutorial_message_active) {
       overlayTutorial.tutorial_message_active=true;
       Future.delayed(Duration.zero,(){
-        InformationPage.tutorialoverlay=overlayTutorial.showTutorial(context, "Puoi scorrere a destra e sinistra clicca sulla descrizione per modificare", MediaQuery.of(context).size.height * 0.20, 0);
+        overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Clicca sul bottone in basso per visualizzare i dati", MediaQuery.of(context).size.height * 0.70);
       });
-    }*/
+    }
+    else if (overlayTutorial.tutorial_mode && !overlayTutorial.tutorial_message_active) {
+        overlayTutorial.tutorial_message_active=true;
+        Future.delayed(Duration.zero,(){
+          overlayTutorial.overlay=overlayTutorial.showTutorial(context, "Scuoti per segnare l'attività come svolta", MediaQuery.of(context).size.height * 0.70);
+        });
+      }
     //Permette di scorrere all'elemento selezionato
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _controller.animateTo(MediaQuery.of(context).size.width*index,
@@ -117,10 +140,22 @@ class _InformationPageState extends State<InformationPage> {
               padding: const EdgeInsets.only(bottom: 20.0, left: 10, right: 10), //margini da sinistra e dal fondo
               child: ElevatedButton(
                 onPressed: () {
-                  //overlayTutorial.tutorial_message_active=false;
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const StatsPage()) //bottone rimanda a pagina stats
-                  );
+                  if (overlayTutorial.step==6 || !overlayTutorial.tutorial_mode) {
+                    InformationPage.detector.stopListening();
+                    if (overlayTutorial.tutorial_mode) {
+                      overlayTutorial.tutorial_message_active=false;
+                      overlayTutorial.removeTutorial(overlayTutorial.overlay);
+                      overlayTutorial.step+=1;
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const StatsPage()), (route) => false);
+                    }
+                    else {
+                      Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const StatsPage()) //bottone rimanda a pagina stats
+                      ).then((_) {
+                        InformationPage.detector.startListening();
+                      });
+                    }
+                  }
                 }, 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ColorVar.principale, //colore interno bottone
@@ -129,12 +164,16 @@ class _InformationPageState extends State<InformationPage> {
                   shadowColor: ColorVar.principale, //colore ombra bottone
                   foregroundColor: Colors.white
                 ), //colore animazione bottone
-                child: Text('Hai ancora ${HomePage.todayTaskToDo} attività da completare oggi', style: TextStyle(color: ColorVar.textSuPrincipale, fontSize: 18.0))
+                child: (HomePage.todayTaskToDo==0) ?
+                Text('Hai completato tutte le attività odierne', style: TextStyle(color: ColorVar.textSuPrincipale, fontSize: 18.0))
+                :(HomePage.todayTaskToDo==1) ?
+                Text("Hai ancora un'attività da completare oggi", style: TextStyle(color: ColorVar.textSuPrincipale, fontSize: 18.0))
+                :Text('Hai ancora ${HomePage.todayTaskToDo} attività da completare oggi', style: TextStyle(color: ColorVar.textSuPrincipale, fontSize: 18.0))
               )
             )
           )
         ]
-      ),
+      )
     );
   }
 }
